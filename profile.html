@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - SuperDuolingo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Fredoka+One:wght@400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --forest-green: #2D5016;
+            --emerald-green: #50C878;
+            --mint-green: #98FB98;
+            --lime-green: #32CD32;
+            --golden-yellow: #FFD700;
+            --deep-blue: #1E3A8A;
+            --warm-orange: #FF8C00;
+            --purple: #8B5CF6;
+            --charcoal: #2D3748;
+            --light-gray: #F7FAFC;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--mint-green) 0%, var(--light-gray) 100%);
+            min-height: 100vh;
+        }
+        
+        .gaming-font {
+            font-family: 'Fredoka One', cursive;
+        }
+        
+        .primary-font {
+            font-family: 'Nunito', sans-serif;
+        }
+        
+        .avatar-customization {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .avatar-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .avatar-option:hover {
+            border-color: var(--emerald-green);
+            transform: scale(1.1);
+        }
+        
+        .avatar-option.selected {
+            border-color: var(--golden-yellow);
+            background: var(--mint-green);
+            box-shadow: 0 0 20px rgba(80, 200, 120, 0.5);
+        }
+        
+        .setting-toggle {
+            width: 60px;
+            height: 30px;
+            background: #ccc;
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .setting-toggle.active {
+            background: var(--emerald-green);
+        }
+        
+        .setting-toggle::after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .setting-toggle.active::after {
+            left: 32px;
+        }
+        
+        .language-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .language-card:hover {
+            border-color: var(--emerald-green);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(80, 200, 120, 0.2);
+        }
+        
+        .language-card.active {
+            border-color: var(--emerald-green);
+            background: var(--mint-green);
+        }
+        
+        .progress-timeline {
+            position: relative;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 24px;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: var(--emerald-green);
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 8px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--emerald-green);
+        }
+        
+        .timeline-item:last-child::before {
+            display: none;
+        }
+        
+        .floating-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pulse-glow {
+            from { box-shadow: 0 0 20px rgba(80, 200, 120, 0.3); }
+            to { box-shadow: 0 0 30px rgba(80, 200, 120, 0.6); }
+        }
+        
+        .streak-flame {
+            color: var(--warm-orange);
+            text-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
+        }
+        
+        .nav-link {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            color: var(--emerald-green);
+            transform: translateY(-2px);
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--emerald-green);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <img src="resources/mascot.png" alt="SuperDuolingo Mascot" class="h-12 w-12 floating-animation">
+                    <h1 class="gaming-font text-2xl text-forest-green">SuperDuolingo</h1>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html" class="nav-link primary-font font-semibold text-charcoal">Home</a>
+                    <a href="lessons.html" class="nav-link primary-font font-semibold text-charcoal">Lessons</a>
+                    <a href="progress.html" class="nav-link primary-font font-semibold text-charcoal">Progress</a>
+                    <a href="profile.html" class="nav-link primary-font font-semibold text-emerald-green">Profile</a>
+                    <a href="guilds.html" class="nav-link primary-font font-semibold text-charcoal">Guilds</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="streak-flame text-xl">🔥</span>
+                        <span class="primary-font font-bold text-warm-orange" id="streak-counter">47</span>
+                    </div>
+                    <button class="bg-emerald-green text-white px-4 py-2 rounded-lg font-semibold hover:bg-lime-green transition-colors" onclick="window.location.href='index.html'">
+                        Back to Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto p-4 py-8">
+        <!-- Profile Header -->
+        <div class="bg-white rounded-2xl p-8 mb-8 shadow-lg">
+            <div class="flex items-center space-x-6 mb-6">
+                <div class="relative">
+                    <img src="resources/mascot.png" alt="Current Avatar" class="w-24 h-24 rounded-full border-4 border-emerald-green" id="current-avatar">
+                    <button class="absolute -bottom-2 -right-2 bg-emerald-green text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-lime-green transition-colors" onclick="openAvatarModal()">
+                        ✏️
+                    </button>
+                </div>
+                <div>
+                    <h2 class="gaming-font text-3xl text-charcoal mb-2" id="username">Language Warrior</h2>
+                    <p class="primary-font text-lg text-gray-600">Level 23 • Spanish Learner</p>
+                    <div class="flex items-center space-x-4 mt-2">
+                        <span class="text-emerald-green font-semibold">2,847 XP</span>
+                        <span class="text-warm-orange font-semibold">47 Day Streak</span>
+                        <span class="text-deep-blue font-semibold">78% Fluent</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="text-center p-4 bg-mint-green rounded-lg">
+                    <div class="text-2xl font-bold text-emerald-green">847</div>
+                    <div class="text-sm text-gray-600">Words Learned</div>
+                </div>
+                <div class="text-center p-4 bg-mint-green rounded-lg">
+                    <div class="text-2xl font-bold text-deep-blue">156</div>
+                    <div class="text-sm text-gray-600">Lessons Done</div>
+                </div>
+                <div class="text-center p-4 bg-mint-green rounded-lg">
+                    <div class="text-2xl font-bold text-purple">23</div>
+                    <div class="text-sm text-gray-600">Achievements</div>
+                </div>
+                <div class="text-center p-4 bg-mint-green rounded-lg">
+                    <div class="text-2xl font-bold text-warm-orange">12h</div>
+                    <div class="text-sm text-gray-600">Practice Time</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Learning Preferences -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <h3 class="gaming-font text-2xl text-charcoal mb-6">Learning Preferences</h3>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Daily Goal</h4>
+                                <p class="text-sm text-gray-600">Set your daily learning target</p>
+                            </div>
+                            <select class="bg-gray-100 border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-emerald-green focus:outline-none">
+                                <option value="5">5 lessons</option>
+                                <option value="10" selected>10 lessons</option>
+                                <option value="15">15 lessons</option>
+                                <option value="20">20 lessons</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Difficulty Level</h4>
+                                <p class="text-sm text-gray-600">Adjust lesson challenge</p>
+                            </div>
+                            <select class="bg-gray-100 border-2 border-gray-300 rounded-lg px-4 py-2 focus:border-emerald-green focus:outline-none">
+                                <option value="easy">Easy</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="hard">Hard</option>
+                                <option value="expert">Expert</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Audio Speed</h4>
+                                <p class="text-sm text-gray-600">Playback speed for audio</p>
+                            </div>
+                            <input type="range" min="0.5" max="2" step="0.1" value="1" class="w-32">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Language Selection -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <h3 class="gaming-font text-2xl text-charcoal mb-6">My Languages</h3>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                        <div class="language-card active">
+                            <div class="text-3xl mb-2">🇪🇸</div>
+                            <h4 class="font-semibold">Spanish</h4>
+                            <p class="text-sm text-gray-600">Level 23</p>
+                        </div>
+                        
+                        <div class="language-card">
+                            <div class="text-3xl mb-2">🇫🇷</div>
+                            <h4 class="font-semibold">French</h4>
+                            <p class="text-sm text-gray-600">Level 8</p>
+                        </div>
+                        
+                        <div class="language-card">
+                            <div class="text-3xl mb-2">🇮🇹</div>
+                            <h4 class="font-semibold">Italian</h4>
+                            <p class="text-sm text-gray-600">Level 5</p>
+                        </div>
+                        
+                        <div class="language-card">
+                            <div class="text-3xl mb-2">🇩🇪</div>
+                            <h4 class="font-semibold">German</h4>
+                            <p class="text-sm text-gray-600">Level 3</p>
+                        </div>
+                        
+                        <div class="language-card">
+                            <div class="text-3xl mb-2">🇯🇵</div>
+                            <h4 class="font-semibold">Japanese</h4>
+                            <p class="text-sm text-gray-600">Level 1</p>
+                        </div>
+                        
+                        <div class="language-card border-2 border-dashed border-gray-300 flex items-center justify-center">
+                            <div class="text-3xl mb-2">➕</div>
+                            <h4 class="font-semibold text-gray-500">Add Language</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Timeline -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <h3 class="gaming-font text-2xl text-charcoal mb-6">Learning Journey</h3>
+                    
+                    <div class="progress-timeline">
+                        <div class="timeline-item">
+                            <h4 class="font-semibold text-emerald-green">Started Spanish Course</h4>
+                            <p class="text-sm text-gray-600 mb-2">47 days ago</p>
+                            <p class="text-gray-700">Began your language learning adventure with basic greetings and introductions.</p>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <h4 class="font-semibold text-deep-blue">First Week Streak</h4>
+                            <p class="text-sm text-gray-600 mb-2">40 days ago</p>
+                            <p class="text-gray-700">Maintained a 7-day learning streak and unlocked your first achievement badge.</p>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <h4 class="font-semibold text-purple">Joined Polyglot Warriors</h4>
+                            <p class="text-sm text-gray-600 mb-2">35 days ago</p>
+                            <p class="text-gray-700">Became part of an amazing community of language learners from around the world.</p>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <h4 class="font-semibold text-warm-orange">Reached Level 20</h4>
+                            <p class="text-sm text-gray-600 mb-2">12 days ago</p>
+                            <p class="text-gray-700">Achieved a major milestone and unlocked advanced conversation practice.</p>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <h4 class="font-semibold text-golden-yellow">30-Day Streak Master</h4>
+                            <p class="text-sm text-gray-600 mb-2">17 days ago</p>
+                            <p class="text-gray-700">Earned the prestigious Streak Champion badge for consistent daily learning.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="space-y-8">
+                <!-- App Settings -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <h3 class="gaming-font text-2xl text-charcoal mb-6">App Settings</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Sound Effects</h4>
+                                <p class="text-sm text-gray-600">Audio feedback for interactions</p>
+                            </div>
+                            <div class="setting-toggle active" data-setting="sound"></div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Push Notifications</h4>
+                                <p class="text-sm text-gray-600">Daily reminders and updates</p>
+                            </div>
+                            <div class="setting-toggle active" data-setting="notifications"></div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Dark Mode</h4>
+                                <p class="text-sm text-gray-600">Switch to dark theme</p>
+                            </div>
+                            <div class="setting-toggle" data-setting="darkmode"></div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Animations</h4>
+                                <p class="text-sm text-gray-600">Visual effects and transitions</p>
+                            </div>
+                            <div class="setting-toggle active" data-setting="animations"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Settings -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <h3 class="gaming-font text-2xl text-charcoal mb-6">Account</h3>
+                    
+                    <div class="space-y-4">
+                        <button class="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors" onclick="openUsernameModal()">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">Change Username</h4>
+                                    <p class="text-sm text-gray-600">Update your display name</p>
+                                </div>
+                                <span class="text-gray-400">→</span>
+                            </div>
+                        </button>
+                        
+                        <button class="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">Change Password</h4>
+                                    <p class="text-sm text-gray-600">Update your account password</p>
+                                </div>
+                                <span class="text-gray-400">→</span>
+                            </div>
+                        </button>
+                        
+                        <button class="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">Email Settings</h4>
+                                    <p class="text-sm text-gray-600">Manage email preferences</p>
+                                </div>
+                                <span class="text-gray-400">→</span>
+                            </div>
+                        </button>
+                        
+                        <button class="w-full text-left p-3 rounded-lg hover:bg-red-50 transition-colors text-red-600">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-semibold">Delete Account</h4>
+                                    <p class="text-sm text-red-400">Permanently delete your account</p>
+                                </div>
+                                <span class="text-red-400">→</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Help & Support -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <h3 class="gaming-font text-2xl text-charcoal mb-6">Help & Support</h3>
+                    
+                    <div class="space-y-4">
+                        <button class="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">FAQ</h4>
+                                    <p class="text-sm text-gray-600">Frequently asked questions</p>
+                                </div>
+                                <span class="text-gray-400">→</span>
+                            </div>
+                        </button>
+                        
+                        <button class="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">Contact Support</h4>
+                                    <p class="text-sm text-gray-600">Get help from our team</p>
+                                </div>
+                                <span class="text-gray-400">→</span>
+                            </div>
+                        </button>
+                        
+                        <button class="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">Report Bug</h4>
+                                    <p class="text-sm text-gray-600">Help us improve the app</p>
+                                </div>
+                                <span class="text-gray-400">→</span>
+                            </div>
+                        </button>
+                        
+                        <button class="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">Privacy Policy</h4>
+                                    <p class="text-sm text-gray-600">How we protect your data</p>
+                                </div>
+                                <span class="text-gray-400">→</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Avatar Customization Modal -->
+    <div id="avatar-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 class="gaming-font text-2xl text-charcoal mb-6">Customize Avatar</h3>
+            
+            <div class="mb-6">
+                <h4 class="font-semibold text-gray-800 mb-3">Choose Your Style:</h4>
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="avatar-option selected" data-avatar="owl">
+                        <span>🦉</span>
+                    </div>
+                    <div class="avatar-option" data-avatar="cat">
+                        <span>🐱</span>
+                    </div>
+                    <div class="avatar-option" data-avatar="dog">
+                        <span>🐶</span>
+                    </div>
+                    <div class="avatar-option" data-avatar="fox">
+                        <span>🦊</span>
+                    </div>
+                    <div class="avatar-option" data-avatar="panda">
+                        <span>🐼</span>
+                    </div>
+                    <div class="avatar-option" data-avatar="rabbit">
+                        <span>🐰</span>
+                    </div>
+                    <div class="avatar-option" data-avatar="lion">
+                        <span>🦁</span>
+                    </div>
+                    <div class="avatar-option" data-avatar="tiger">
+                        <span>🐯</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <h4 class="font-semibold text-gray-800 mb-3">Choose Color Theme:</h4>
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="avatar-option selected" style="background: linear-gradient(135deg, #50C878, #32CD32);" data-color="green">
+                        <span style="color: white;">🎨</span>
+                    </div>
+                    <div class="avatar-option" style="background: linear-gradient(135deg, #1E3A8A, #8B5CF6);" data-color="blue">
+                        <span style="color: white;">🎨</span>
+                    </div>
+                    <div class="avatar-option" style="background: linear-gradient(135deg, #FF8C00, #FFD700);" data-color="orange">
+                        <span style="color: white;">🎨</span>
+                    </div>
+                    <div class="avatar-option" style="background: linear-gradient(135deg, #dc3545, #e83e8c);" data-color="red">
+                        <span style="color: white;">🎨</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex space-x-4">
+                <button onclick="closeAvatarModal()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition-colors">
+                    Cancel
+                </button>
+                <button onclick="saveAvatarChanges()" class="flex-1 bg-emerald-green text-white py-3 rounded-lg font-semibold hover:bg-lime-green transition-colors">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Username Change Modal -->
+    <div id="username-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 class="gaming-font text-2xl text-charcoal mb-6">Change Username</h3>
+            
+            <div class="mb-6">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">New Username:</label>
+                <input type="text" id="new-username" value="Language Warrior" 
+                       class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-emerald-green focus:outline-none">
+                <p class="text-xs text-gray-500 mt-2">Username must be 3-20 characters long</p>
+            </div>
+            
+            <div class="flex space-x-4">
+                <button onclick="closeUsernameModal()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition-colors">
+                    Cancel
+                </button>
+                <button onclick="saveUsernameChanges()" class="flex-1 bg-emerald-green text-white py-3 rounded-lg font-semibold hover:bg-lime-green transition-colors">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ProfileManager {
+            constructor() {
+                this.settings = {
+                    sound: true,
+                    notifications: true,
+                    darkmode: false,
+                    animations: true
+                };
+                
+                this.selectedAvatar = 'owl';
+                this.selectedColor = 'green';
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.animateElements();
+            }
+            
+            setupEventListeners() {
+                // Setting toggles
+                document.querySelectorAll('.setting-toggle').forEach(toggle => {
+                    toggle.addEventListener('click', (e) => {
+                        const setting = e.target.dataset.setting;
+                        this.toggleSetting(setting, e.target);
+                    });
+                });
+                
+                // Language cards
+                document.querySelectorAll('.language-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        if (!e.currentTarget.querySelector('.text-gray-500')) {
+                            this.selectLanguage(e.currentTarget);
+                        }
+                    });
+                });
+                
+                // Avatar options
+                document.querySelectorAll('.avatar-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        if (e.currentTarget.dataset.avatar) {
+                            this.selectAvatar(e.currentTarget);
+                        } else if (e.currentTarget.dataset.color) {
+                            this.selectColor(e.currentTarget);
+                        }
+                    });
+                });
+            }
+            
+            toggleSetting(setting, element) {
+                this.settings[setting] = !this.settings[setting];
+                element.classList.toggle('active');
+                
+                // Show feedback
+                this.showSettingFeedback(setting, this.settings[setting]);
+                
+                // Apply setting changes
+                this.applySettingChange(setting, this.settings[setting]);
+            }
+            
+            showSettingFeedback(setting, isActive) {
+                const messages = {
+                    sound: isActive ? 'Sound effects enabled' : 'Sound effects disabled',
+                    notifications: isActive ? 'Notifications enabled' : 'Notifications disabled',
+                    darkmode: isActive ? 'Dark mode enabled' : 'Dark mode disabled',
+                    animations: isActive ? 'Animations enabled' : 'Animations disabled'
+                };
+                
+                this.showToast(messages[setting]);
+            }
+            
+            applySettingChange(setting, isActive) {
+                switch(setting) {
+                    case 'darkmode':
+                        if (isActive) {
+                            document.body.classList.add('dark-mode');
+                        } else {
+                            document.body.classList.remove('dark-mode');
+                        }
+                        break;
+                    case 'animations':
+                        if (!isActive) {
+                            // Disable animations
+                            document.documentElement.style.setProperty('--animation-duration', '0s');
+                        } else {
+                            document.documentElement.style.removeProperty('--animation-duration');
+                        }
+                        break;
+                }
+            }
+            
+            selectLanguage(card) {
+                // Remove active from all cards
+                document.querySelectorAll('.language-card').forEach(c => {
+                    c.classList.remove('active');
+                });
+                
+                // Add active to selected card
+                card.classList.add('active');
+                
+                const language = card.querySelector('h4').textContent;
+                this.showToast(`Switched to ${language} course`);
+            }
+            
+            selectAvatar(option) {
+                // Remove selected from all avatar options
+                document.querySelectorAll('.avatar-option[data-avatar]').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                // Add selected to clicked option
+                option.classList.add('selected');
+                this.selectedAvatar = option.dataset.avatar;
+            }
+            
+            selectColor(option) {
+                // Remove selected from all color options
+                document.querySelectorAll('.avatar-option[data-color]').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                // Add selected to clicked option
+                option.classList.add('selected');
+                this.selectedColor = option.dataset.color;
+            }
+            
+            animateElements() {
+                // Animate settings panel
+                anime({
+                    targets: '.bg-white',
+                    translateY: [50, 0],
+                    opacity: [0, 1],
+                    delay: anime.stagger(200),
+                    duration: 800,
+                    easing: 'easeOutExpo'
+                });
+                
+                // Animate language cards
+                anime({
+                    targets: '.language-card',
+                    scale: [0.8, 1],
+                    opacity: [0, 1],
+                    delay: anime.stagger(100),
+                    duration: 600,
+                    easing: 'easeOutBack'
+                });
+            }
+            
+            showToast(message) {
+                const toast = document.createElement('div');
+                toast.textContent = message;
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    right: 20px;
+                    background: var(--emerald-green);
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    z-index: 1000;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                `;
+                
+                document.body.appendChild(toast);
+                
+                anime({
+                    targets: toast,
+                    translateX: [100, 0],
+                    opacity: [0, 1],
+                    duration: 300,
+                    easing: 'easeOutQuad'
+                });
+                
+                setTimeout(() => {
+                    anime({
+                        targets: toast,
+                        translateX: [0, 100],
+                        opacity: [1, 0],
+                        duration: 300,
+                        easing: 'easeInQuad',
+                        complete: () => {
+                            document.body.removeChild(toast);
+                        }
+                    });
+                }, 3000);
+            }
+        }
+        
+        // Modal functions
+        function openAvatarModal() {
+            document.getElementById('avatar-modal').classList.remove('hidden');
+            anime({
+                targets: '#avatar-modal',
+                opacity: [0, 1],
+                duration: 300,
+                easing: 'easeOutQuad'
+            });
+        }
+        
+        function closeAvatarModal() {
+            anime({
+                targets: '#avatar-modal',
+                opacity: [1, 0],
+                duration: 300,
+                easing: 'easeOutQuad',
+                complete: () => {
+                    document.getElementById('avatar-modal').classList.add('hidden');
+                }
+            });
+        }
+        
+        function saveAvatarChanges() {
+            // Simulate saving avatar changes
+            const profileManager = window.profileManager;
+            profileManager.showToast('Avatar updated successfully!');
+            closeAvatarModal();
+        }
+        
+        function openUsernameModal() {
+            document.getElementById('username-modal').classList.remove('hidden');
+            anime({
+                targets: '#username-modal',
+                opacity: [0, 1],
+                duration: 300,
+                easing: 'easeOutQuad'
+            });
+        }
+        
+        function closeUsernameModal() {
+            anime({
+                targets: '#username-modal',
+                opacity: [1, 0],
+                duration: 300,
+                easing: 'easeOutQuad',
+                complete: () => {
+                    document.getElementById('username-modal').classList.add('hidden');
+                }
+            });
+        }
+        
+        function saveUsernameChanges() {
+            const newUsername = document.getElementById('new-username').value;
+            if (newUsername.trim().length >= 3) {
+                document.getElementById('username').textContent = newUsername;
+                const profileManager = window.profileManager;
+                profileManager.showToast('Username updated successfully!');
+                closeUsernameModal();
+            } else {
+                const profileManager = window.profileManager;
+                profileManager.showToast('Username must be at least 3 characters');
+            }
+        }
+        
+        // Initialize profile manager when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.profileManager = new ProfileManager();
+        });
+    </script>
+</body>
+</html>

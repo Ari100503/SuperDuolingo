@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Your Character - SuperDuolingo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Fredoka+One:wght@400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --forest-green: #2D5016;
+            --emerald-green: #50C878;
+            --mint-green: #98FB98;
+            --lime-green: #32CD32;
+            --golden-yellow: #FFD700;
+            --deep-blue: #1E3A8A;
+            --warm-orange: #FF8C00;
+            --purple: #8B5CF6;
+            --charcoal: #2D3748;
+            --light-gray: #F7FAFC;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--mint-green) 0%, var(--light-gray) 100%);
+            min-height: 100vh;
+        }
+        
+        .gaming-font {
+            font-family: 'Fredoka One', cursive;
+        }
+        
+        .primary-font {
+            font-family: 'Nunito', sans-serif;
+        }
+        
+        .character-option {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .character-option:hover {
+            border-color: var(--emerald-green);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(80, 200, 120, 0.3);
+        }
+        
+        .character-option.selected {
+            border-color: var(--golden-yellow);
+            background: var(--mint-green);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+        
+        .character-option::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+            opacity: 0;
+        }
+        
+        .character-option:hover::before {
+            opacity: 1;
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .gaming-button {
+            background: linear-gradient(135deg, var(--emerald-green), var(--lime-green));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-size: 1.1rem;
+        }
+        
+        .gaming-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(80, 200, 120, 0.4);
+        }
+        
+        .gaming-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .floating-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pulse-glow {
+            from { box-shadow: 0 0 20px rgba(80, 200, 120, 0.3); }
+            to { box-shadow: 0 0 30px rgba(80, 200, 120, 0.6); }
+        }
+        
+        .character-preview {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--mint-green), var(--light-gray));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6rem;
+            border: 4px solid var(--emerald-green);
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .character-name-input {
+            background: white;
+            border: 3px solid var(--emerald-green);
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 1.2rem;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            display: block;
+        }
+        
+        .character-name-input:focus {
+            outline: none;
+            border-color: var(--golden-yellow);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+        
+        .language-selection {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            border: 3px solid var(--emerald-green);
+            margin: 20px 0;
+        }
+        
+        .language-option {
+            background: var(--light-gray);
+            border-radius: 12px;
+            padding: 16px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .language-option:hover {
+            border-color: var(--emerald-green);
+            background: var(--mint-green);
+            transform: translateY(-2px);
+        }
+        
+        .language-option.selected {
+            border-color: var(--golden-yellow);
+            background: var(--mint-green);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin: 0 10px;
+            position: relative;
+        }
+        
+        .step.active {
+            background: var(--emerald-green);
+            color: white;
+            box-shadow: 0 0 20px rgba(80, 200, 120, 0.5);
+        }
+        
+        .step.completed {
+            background: var(--golden-yellow);
+            color: var(--charcoal);
+        }
+        
+        .step::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 2px;
+            background: #e9ecef;
+            left: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .step:last-child::after {
+            display: none;
+        }
+        
+        .step.completed::after {
+            background: var(--golden-yellow);
+        }
+        
+        .creation-step {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .creation-step.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="text-center py-8">
+        <div class="flex items-center justify-center space-x-4 mb-4">
+            <img src="resources/mascot.png" alt="SuperDuolingo Mascot" class="h-16 w-16 floating-animation">
+            <h1 class="gaming-font text-4xl text-forest-green">SuperDuolingo</h1>
+        </div>
+        <p class="primary-font text-xl text-gray-600">Create Your Language Learning Avatar</p>
+    </header>
+
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+        <div class="step active" id="step-1">1</div>
+        <div class="step" id="step-2">2</div>
+        <div class="step" id="step-3">3</div>
+        <div class="step" id="step-4">4</div>
+    </div>
+
+    <!-- Character Creation Container -->
+    <div class="max-w-4xl mx-auto p-4">
+        <!-- Step 1: Choose Character Type -->
+        <div class="creation-step active" id="creation-step-1">
+            <div class="text-center mb-8">
+                <h2 class="gaming-font text-3xl text-charcoal mb-4">Choose Your Character</h2>
+                <p class="primary-font text-lg text-gray-600">Select the avatar that will represent you on your language learning journey</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="character-option selected" data-character="warrior">
+                    <div class="text-6xl mb-4">⚔️</div>
+                    <h3 class="gaming-font text-xl text-charcoal mb-2">Language Warrior</h3>
+                    <p class="text-sm text-gray-600 mb-4">Brave and determined, never gives up on challenges</p>
+                    <div class="text-xs text-emerald-green font-semibold">High XP Bonus</div>
+                </div>
+                
+                <div class="character-option" data-character="wizard">
+                    <div class="text-6xl mb-4">🧙‍♂️</div>
+                    <h3 class="gaming-font text-xl text-charcoal mb-2">Grammar Wizard</h3>
+                    <p class="text-sm text-gray-600 mb-4">Wise and knowledgeable, masters language rules quickly</p>
+                    <div class="text-xs text-deep-blue font-semibold">Grammar Boost</div>
+                </div>
+                
+                <div class="character-option" data-character="explorer">
+                    <div class="text-6xl mb-4">🗺️</div>
+                    <h3 class="gaming-font text-xl text-charcoal mb-2">Culture Explorer</h3>
+                    <p class="text-sm text-gray-600 mb-4">Curious and adventurous, loves discovering new cultures</p>
+                    <div class="text-xs text-purple font-semibold">Culture Bonus</div>
+                </div>
+                
+                <div class="character-option" data-character="scholar">
+                    <div class="text-6xl mb-4">📚</div>
+                    <h3 class="gaming-font text-xl text-charcoal mb-2">Knowledge Scholar</h3>
+                    <p class="text-sm text-gray-600 mb-4">Methodical and patient, builds strong foundations</p>
+                    <div class="text-xs text-warm-orange font-semibold">Retention Boost</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Customize Appearance -->
+        <div class="creation-step" id="creation-step-2">
+            <div class="text-center mb-8">
+                <h2 class="gaming-font text-3xl text-charcoal mb-4">Customize Your Avatar</h2>
+                <p class="primary-font text-lg text-gray-600">Make your character unique with colors and accessories</p>
+            </div>
+            
+            <div class="flex flex-col lg:flex-row items-center justify-center gap-8 mb-8">
+                <!-- Character Preview -->
+                <div class="character-preview" id="character-preview">
+                    <span id="character-emoji">⚔️</span>
+                </div>
+                
+                <!-- Customization Options -->
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="font-semibold text-gray-800 mb-3">Color Theme:</h3>
+                        <div class="flex space-x-3">
+                            <button class="w-12 h-12 rounded-full border-4 border-golden-yellow" style="background: linear-gradient(135deg, #50C878, #32CD32);" data-color="green"></button>
+                            <button class="w-12 h-12 rounded-full border-4 border-transparent" style="background: linear-gradient(135deg, #1E3A8A, #8B5CF6);" data-color="blue"></button>
+                            <button class="w-12 h-12 rounded-full border-4 border-transparent" style="background: linear-gradient(135deg, #FF8C00, #FFD700);" data-color="orange"></button>
+                            <button class="w-12 h-12 rounded-full border-4 border-transparent" style="background: linear-gradient(135deg, #dc3545, #e83e8c);" data-color="red"></button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-800 mb-3">Accessories:</h3>
+                        <div class="grid grid-cols-4 gap-3">
+                            <button class="p-3 bg-gray-100 rounded-lg border-2 border-golden-yellow text-2xl" data-accessory="hat">🎩</button>
+                            <button class="p-3 bg-gray-100 rounded-lg border-2 border-transparent text-2xl" data-accessory="glasses">🤓</button>
+                            <button class="p-3 bg-gray-100 rounded-lg border-2 border-transparent text-2xl" data-accessory="crown">👑</button>
+                            <button class="p-3 bg-gray-100 rounded-lg border-2 border-transparent text-2xl" data-accessory="none">❌</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Choose Your Name -->
+        <div class="creation-step" id="creation-step-3">
+            <div class="text-center mb-8">
+                <h2 class="gaming-font text-3xl text-charcoal mb-4">Choose Your Name</h2>
+                <p class="primary-font text-lg text-gray-600">What should we call you on your language learning adventure?</p>
+            </div>
+            
+            <div class="max-w-md mx-auto mb-8">
+                <input type="text" id="character-name" placeholder="Enter your hero name..." 
+                       class="character-name-input">
+                <div class="mt-4 text-center">
+                    <div class="text-sm text-gray-600">Suggested names:</div>
+                    <div class="flex flex-wrap justify-center gap-2 mt-2">
+                        <button class="px-3 py-1 bg-gray-200 rounded-lg text-sm hover:bg-emerald-green hover:text-white transition-colors" onclick="setSuggestedName('LinguaHero')">LinguaHero</button>
+                        <button class="px-3 py-1 bg-gray-200 rounded-lg text-sm hover:bg-emerald-green hover:text-white transition-colors" onclick="setSuggestedName('Polyglot')">Polyglot</button>
+                        <button class="px-3 py-1 bg-gray-200 rounded-lg text-sm hover:bg-emerald-green hover:text-white transition-colors" onclick="setSuggestedName('WordMaster')">WordMaster</button>
+                        <button class="px-3 py-1 bg-gray-200 rounded-lg text-sm hover:bg-emerald-green hover:text-white transition-colors" onclick="setSuggestedName('LanguageLegend')">LanguageLegend</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Choose Your Language -->
+        <div class="creation-step" id="creation-step-4">
+            <div class="text-center mb-8">
+                <h2 class="gaming-font text-3xl text-charcoal mb-4">Choose Your First Language</h2>
+                <p class="primary-font text-lg text-gray-600">Which language would you like to start learning?</p>
+            </div>
+            
+            <div class="language-selection">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <div class="language-option selected" data-language="spanish">
+                        <div class="text-4xl mb-2">🇪🇸</div>
+                        <h3 class="font-bold text-charcoal">Spanish</h3>
+                        <p class="text-sm text-gray-600">580M speakers</p>
+                    </div>
+                    
+                    <div class="language-option" data-language="french">
+                        <div class="text-4xl mb-2">🇫🇷</div>
+                        <h3 class="font-bold text-charcoal">French</h3>
+                        <p class="text-sm text-gray-600">300M speakers</p>
+                    </div>
+                    
+                    <div class="language-option" data-language="german">
+                        <div class="text-4xl mb-2">🇩🇪</div>
+                        <h3 class="font-bold text-charcoal">German</h3>
+                        <p class="text-sm text-gray-600">130M speakers</p>
+                    </div>
+                    
+                    <div class="language-option" data-language="italian">
+                        <div class="text-4xl mb-2">🇮🇹</div>
+                        <h3 class="font-bold text-charcoal">Italian</h3>
+                        <p class="text-sm text-gray-600">85M speakers</p>
+                    </div>
+                    
+                    <div class="language-option" data-language="japanese">
+                        <div class="text-4xl mb-2">🇯🇵</div>
+                        <h3 class="font-bold text-charcoal">Japanese</h3>
+                        <p class="text-sm text-gray-600">125M speakers</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-2xl mx-auto">
+                    <h4 class="font-semibold text-blue-800 mb-2">💡 Pro Tip:</h4>
+                    <p class="text-blue-700 text-sm">You can learn multiple languages simultaneously! Start with one and add more as you progress.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between items-center mt-8">
+            <button id="prev-btn" class="gaming-button bg-gray-400 hover:bg-gray-500" onclick="previousStep()" style="display: none;">
+                ← Previous
+            </button>
+            <div class="flex-1"></div>
+            <button id="next-btn" class="gaming-button" onclick="nextStep()">
+                Next →
+            </button>
+            <button id="start-btn" class="gaming-button pulse-glow" onclick="startAdventure()" style="display: none;">
+                Start Your Adventure! 🚀
+            </button>
+        </div>
+    </div>
+
+    <script>
+        class CharacterCreation {
+            constructor() {
+                this.currentStep = 1;
+                this.totalSteps = 4;
+                this.characterData = {
+                    type: 'warrior',
+                    color: 'green',
+                    accessory: 'hat',
+                    name: '',
+                    language: 'spanish'
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.updateStepIndicator();
+                this.animateElements();
+            }
+            
+            setupEventListeners() {
+                // Character selection
+                document.querySelectorAll('.character-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        this.selectCharacter(e.currentTarget);
+                    });
+                });
+                
+                // Color selection
+                document.querySelectorAll('[data-color]').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        this.selectColor(e.currentTarget);
+                    });
+                });
+                
+                // Accessory selection
+                document.querySelectorAll('[data-accessory]').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        this.selectAccessory(e.currentTarget);
+                    });
+                });
+                
+                // Language selection
+                document.querySelectorAll('.language-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        this.selectLanguage(e.currentTarget);
+                    });
+                });
+                
+                // Name input
+                document.getElementById('character-name').addEventListener('input', (e) => {
+                    this.characterData.name = e.target.value;
+                    this.updateNextButton();
+                });
+            }
+            
+            selectCharacter(option) {
+                // Remove selected from all options
+                document.querySelectorAll('.character-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                // Add selected to clicked option
+                option.classList.add('selected');
+                this.characterData.type = option.dataset.character;
+                
+                // Update preview
+                this.updateCharacterPreview();
+                this.updateNextButton();
+                
+                // Add selection animation
+                anime({
+                    targets: option,
+                    scale: [1, 1.05, 1],
+                    duration: 300,
+                    easing: 'easeOutQuad'
+                });
+            }
+            
+            selectColor(button) {
+                // Remove selected from all color buttons
+                document.querySelectorAll('[data-color]').forEach(btn => {
+                    btn.style.borderColor = 'transparent';
+                });
+                
+                // Add selected to clicked button
+                button.style.borderColor = 'var(--golden-yellow)';
+                this.characterData.color = button.dataset.color;
+                
+                // Update preview
+                this.updateCharacterPreview();
+                
+                // Add selection animation
+                anime({
+                    targets: button,
+                    scale: [1, 1.1, 1],
+                    duration: 300,
+                    easing: 'easeOutQuad'
+                });
+            }
+            
+            selectAccessory(button) {
+                // Remove selected from all accessory buttons
+                document.querySelectorAll('[data-accessory]').forEach(btn => {
+                    btn.style.borderColor = 'transparent';
+                });
+                
+                // Add selected to clicked button
+                button.style.borderColor = 'var(--golden-yellow)';
+                this.characterData.accessory = button.dataset.accessory;
+                
+                // Update preview
+                this.updateCharacterPreview();
+                
+                // Add selection animation
+                anime({
+                    targets: button,
+                    scale: [1, 1.1, 1],
+                    duration: 300,
+                    easing: 'easeOutQuad'
+                });
+            }
+            
+            selectLanguage(option) {
+                // Remove selected from all language options
+                document.querySelectorAll('.language-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                // Add selected to clicked option
+                option.classList.add('selected');
+                this.characterData.language = option.dataset.language;
+                
+                // Add selection animation
+                anime({
+                    targets: option,
+                    scale: [1, 1.05, 1],
+                    duration: 300,
+                    easing: 'easeOutQuad'
+                });
+            }
+            
+            updateCharacterPreview() {
+                const preview = document.getElementById('character-emoji');
+                const emojiMap = {
+                    warrior: '⚔️',
+                    wizard: '🧙‍♂️',
+                    explorer: '🗺️',
+                    scholar: '📚'
+                };
+                
+                preview.textContent = emojiMap[this.characterData.type];
+                
+                // Add color to preview background
+                const previewContainer = document.getElementById('character-preview');
+                const colorMap = {
+                    green: 'linear-gradient(135deg, #50C878, #32CD32)',
+                    blue: 'linear-gradient(135deg, #1E3A8A, #8B5CF6)',
+                    orange: 'linear-gradient(135deg, #FF8C00, #FFD700)',
+                    red: 'linear-gradient(135deg, #dc3545, #e83e8c)'
+                };
+                
+                previewContainer.style.background = colorMap[this.characterData.color];
+            }
+            
+            nextStep() {
+                if (this.currentStep < this.totalSteps) {
+                    this.currentStep++;
+                    this.updateStep();
+                }
+            }
+            
+            previousStep() {
+                if (this.currentStep > 1) {
+                    this.currentStep--;
+                    this.updateStep();
+                }
+            }
+            
+            updateStep() {
+                // Hide all steps
+                document.querySelectorAll('.creation-step').forEach(step => {
+                    step.classList.remove('active');
+                });
+                
+                // Show current step
+                document.getElementById(`creation-step-${this.currentStep}`).classList.add('active');
+                
+                // Update step indicator
+                this.updateStepIndicator();
+                
+                // Update navigation buttons
+                this.updateNavigationButtons();
+                
+                // Animate step transition
+                anime({
+                    targets: `#creation-step-${this.currentStep}`,
+                    opacity: [0, 1],
+                    translateY: [20, 0],
+                    duration: 500,
+                    easing: 'easeOutQuad'
+                });
+            }
+            
+            updateStepIndicator() {
+                document.querySelectorAll('.step').forEach((step, index) => {
+                    const stepNumber = index + 1;
+                    step.classList.remove('active', 'completed');
+                    
+                    if (stepNumber === this.currentStep) {
+                        step.classList.add('active');
+                    } else if (stepNumber < this.currentStep) {
+                        step.classList.add('completed');
+                    }
+                });
+            }
+            
+            updateNavigationButtons() {
+                const prevBtn = document.getElementById('prev-btn');
+                const nextBtn = document.getElementById('next-btn');
+                const startBtn = document.getElementById('start-btn');
+                
+                // Show/hide previous button
+                if (this.currentStep === 1) {
+                    prevBtn.style.display = 'none';
+                } else {
+                    prevBtn.style.display = 'block';
+                }
+                
+                // Show/hide next/start buttons
+                if (this.currentStep === this.totalSteps) {
+                    nextBtn.style.display = 'none';
+                    startBtn.style.display = 'block';
+                } else {
+                    nextBtn.style.display = 'block';
+                    startBtn.style.display = 'none';
+                }
+                
+                // Update next button state
+                this.updateNextButton();
+            }
+            
+            updateNextButton() {
+                const nextBtn = document.getElementById('next-btn');
+                const startBtn = document.getElementById('start-btn');
+                
+                let canProceed = true;
+                
+                if (this.currentStep === 3) {
+                    // Name step - check if name is entered
+                    canProceed = this.characterData.name.trim().length >= 3;
+                }
+                
+                if (this.currentStep === this.totalSteps) {
+                    startBtn.disabled = !canProceed;
+                } else {
+                    nextBtn.disabled = !canProceed;
+                }
+            }
+            
+            startAdventure() {
+                // Save character data to localStorage
+                localStorage.setItem('superduolingo-character', JSON.stringify(this.characterData));
+                
+                // Show success animation
+                this.showSuccessAnimation();
+                
+                // Redirect to main app after animation
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            }
+            
+            showSuccessAnimation() {
+                // Create celebration effect
+                for (let i = 0; i < 50; i++) {
+                    const particle = document.createElement('div');
+                    particle.style.cssText = `
+                        position: fixed;
+                        width: 10px;
+                        height: 10px;
+                        background: ${['#50C878', '#32CD32', '#FFD700', '#FF8C00'][Math.floor(Math.random() * 4)]};
+                        border-radius: 50%;
+                        pointer-events: none;
+                        z-index: 1000;
+                        left: 50%;
+                        top: 50%;
+                    `;
+                    document.body.appendChild(particle);
+                    
+                    anime({
+                        targets: particle,
+                        translateX: (Math.random() - 0.5) * 800,
+                        translateY: (Math.random() - 0.5) * 800,
+                        scale: [1, 0],
+                        opacity: [1, 0],
+                        duration: 2000,
+                        easing: 'easeOutQuad',
+                        complete: () => {
+                            document.body.removeChild(particle);
+                        }
+                    });
+                }
+                
+                // Show success message
+                const message = document.createElement('div');
+                message.innerHTML = `
+                    <div style="text-align: center; color: white;">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">🎉</div>
+                        <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">Welcome, ${this.characterData.name}!</h2>
+                        <p style="font-size: 1.2rem;">Your adventure begins now!</p>
+                    </div>
+                `;
+                message.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: linear-gradient(135deg, #50C878, #32CD32);
+                    padding: 2rem;
+                    border-radius: 20px;
+                    z-index: 1001;
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+                `;
+                
+                document.body.appendChild(message);
+                
+                anime({
+                    targets: message,
+                    scale: [0, 1],
+                    opacity: [0, 1],
+                    duration: 1000,
+                    easing: 'easeOutBack'
+                });
+            }
+            
+            animateElements() {
+                // Animate character options
+                anime({
+                    targets: '.character-option',
+                    translateY: [50, 0],
+                    opacity: [0, 1],
+                    delay: anime.stagger(200),
+                    duration: 800,
+                    easing: 'easeOutExpo'
+                });
+                
+                // Animate step indicator
+                anime({
+                    targets: '.step',
+                    scale: [0, 1],
+                    delay: anime.stagger(100),
+                    duration: 600,
+                    easing: 'easeOutBack'
+                });
+            }
+        }
+        
+        // Global functions for button clicks
+        function nextStep() {
+            window.characterCreation.nextStep();
+        }
+        
+        function previousStep() {
+            window.characterCreation.previousStep();
+        }
+        
+        function startAdventure() {
+            window.characterCreation.startAdventure();
+        }
+        
+        function setSuggestedName(name) {
+            document.getElementById('character-name').value = name;
+            window.characterCreation.characterData.name = name;
+            window.characterCreation.updateNextButton();
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.characterCreation = new CharacterCreation();
+        });
+    </script>
+</body>
+</html>

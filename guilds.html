@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guilds - SuperDuolingo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.2/echarts.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Fredoka+One:wght@400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --forest-green: #2D5016;
+            --emerald-green: #50C878;
+            --mint-green: #98FB98;
+            --lime-green: #32CD32;
+            --golden-yellow: #FFD700;
+            --deep-blue: #1E3A8A;
+            --warm-orange: #FF8C00;
+            --purple: #8B5CF6;
+            --charcoal: #2D3748;
+            --light-gray: #F7FAFC;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--mint-green) 0%, var(--light-gray) 100%);
+            min-height: 100vh;
+        }
+        
+        .gaming-font {
+            font-family: 'Fredoka One', cursive;
+        }
+        
+        .primary-font {
+            font-family: 'Nunito', sans-serif;
+        }
+        
+        .guild-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .guild-card:hover {
+            border-color: var(--emerald-green);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(80, 200, 120, 0.3);
+        }
+        
+        .guild-card.your-guild {
+            border-color: var(--golden-yellow);
+            background: linear-gradient(135deg, var(--mint-green), var(--lime-green));
+        }
+        
+        .guild-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            opacity: 0;
+            transition: all 0.5s;
+        }
+        
+        .guild-card:hover::before {
+            opacity: 1;
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .guild-banner {
+            width: 100%;
+            height: 120px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--deep-blue), var(--purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .guild-level {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--golden-yellow);
+            color: var(--charcoal);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--mint-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            border: 2px solid var(--emerald-green);
+            margin-right: -10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .member-avatar.leader {
+            border-color: var(--golden-yellow);
+            background: var(--golden-yellow);
+        }
+        
+        .war-stats {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        
+        .war-progress {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            height: 8px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+        
+        .war-progress-bar {
+            background: var(--golden-yellow);
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.5s ease;
+        }
+        
+        .raid-boss {
+            background: linear-gradient(135deg, var(--charcoal), #4a5568);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin: 16px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .raid-boss::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1), transparent);
+            animation: rotate 10s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .boss-health {
+            background: #dc3545;
+            height: 20px;
+            border-radius: 10px;
+            margin: 12px 0;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .boss-health-bar {
+            background: linear-gradient(90deg, #28a745, #20c997);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .chat-message {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-left: 4px solid var(--emerald-green);
+        }
+        
+        .chat-message.own {
+            background: var(--mint-green);
+            border-left-color: var(--deep-blue);
+            margin-left: 20%;
+        }
+        
+        .chat-message.system {
+            background: var(--warm-orange);
+            color: white;
+            border-left-color: var(--golden-yellow);
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .floating-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pulse-glow {
+            from { box-shadow: 0 0 20px rgba(80, 200, 120, 0.3); }
+            to { box-shadow: 0 0 30px rgba(80, 200, 120, 0.6); }
+        }
+        
+        .streak-flame {
+            color: var(--warm-orange);
+            text-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
+        }
+        
+        .nav-link {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            color: var(--emerald-green);
+            transform: translateY(-2px);
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--emerald-green);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .gaming-button {
+            background: linear-gradient(135deg, var(--emerald-green), var(--lime-green));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .gaming-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(80, 200, 120, 0.4);
+        }
+        
+        .gaming-button.secondary {
+            background: linear-gradient(135deg, var(--deep-blue), var(--purple));
+        }
+        
+        .gaming-button.danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <img src="resources/mascot.png" alt="SuperDuolingo Mascot" class="h-12 w-12 floating-animation">
+                    <h1 class="gaming-font text-2xl text-forest-green">SuperDuolingo</h1>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html" class="nav-link primary-font font-semibold text-charcoal">Home</a>
+                    <a href="lessons.html" class="nav-link primary-font font-semibold text-charcoal">Lessons</a>
+                    <a href="progress.html" class="nav-link primary-font font-semibold text-charcoal">Progress</a>
+                    <a href="profile.html" class="nav-link primary-font font-semibold text-charcoal">Profile</a>
+                    <a href="guilds.html" class="nav-link primary-font font-semibold text-emerald-green">Guilds</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="streak-flame text-xl">🔥</span>
+                        <span class="primary-font font-bold text-warm-orange">47</span>
+                    </div>
+                    <button class="bg-emerald-green text-white px-4 py-2 rounded-lg font-semibold hover:bg-lime-green transition-colors" onclick="window.location.href='index.html'">
+                        Back to Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto p-4 py-8">
+        <!-- Guild Header -->
+        <div class="bg-white rounded-2xl p-8 mb-8 shadow-lg">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="gaming-font text-3xl text-charcoal mb-2">Guild Headquarters</h2>
+                    <p class="primary-font text-lg text-gray-600">Join forces with other learners and conquer language challenges together!</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl mb-2">🏆</div>
+                    <p class="text-sm text-gray-600">Guild Rank #8</p>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="flex flex-wrap gap-4">
+                <button class="gaming-button" onclick="openCreateGuildModal()">
+                    Create Guild
+                </button>
+                <button class="gaming-button secondary" onclick="openJoinGuildModal()">
+                    Join Guild
+                </button>
+                <button class="gaming-button" onclick="window.location.href='guild-war.html'">
+                    Guild Wars
+                </button>
+                <button class="gaming-button secondary" onclick="startRaidBoss()">
+                    Raid Boss
+                </button>
+            </div>
+        </div>
+
+        <!-- Your Current Guild -->
+        <div class="guild-card your-guild mb-8">
+            <div class="guild-banner">
+                🏰
+                <div class="guild-level">Level 12</div>
+            </div>
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="gaming-font text-2xl text-charcoal">Polyglot Warriors</h3>
+                    <p class="text-gray-600">A community of passionate language learners supporting each other's journey to fluency.</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-2xl font-bold text-emerald-green">2,847</div>
+                    <div class="text-sm text-gray-600">Total XP</div>
+                </div>
+            </div>
+            
+            <!-- Guild Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                <div class="text-center">
+                    <div class="text-xl font-bold text-deep-blue">47</div>
+                    <div class="text-xs text-gray-600">Members</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xl font-bold text-purple">156</div>
+                    <div class="text-xs text-gray-600">Wars Won</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xl font-bold text-warm-orange">23</div>
+                    <div class="text-xs text-gray-600">Raid Bosses</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xl font-bold text-golden-yellow">98%</div>
+                    <div class="text-xs text-gray-600">Activity</div>
+                </div>
+            </div>
+            
+            <!-- Guild Members -->
+            <div class="mb-4">
+                <h4 class="font-semibold text-gray-800 mb-2">Members (47/50)</h4>
+                <div class="flex items-center mb-2">
+                    <div class="member-avatar leader" title="Guild Leader">👑</div>
+                    <div class="member-avatar">⚔️</div>
+                    <div class="member-avatar">🧙‍♂️</div>
+                    <div class="member-avatar">🗺️</div>
+                    <div class="member-avatar">📚</div>
+                    <div class="member-avatar">🎯</div>
+                    <div class="member-avatar">🎭</div>
+                    <div class="member-avatar">🏆</div>
+                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold">+39</div>
+                </div>
+            </div>
+            
+            <!-- Current Guild War -->
+            <div class="war-stats">
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-bold">🔥 Current Guild War vs Language Masters</h4>
+                    <span class="text-sm">2 days left</span>
+                </div>
+                <div class="flex items-center justify-between mb-2">
+                    <span>Polyglot Warriors</span>
+                    <span class="font-bold">1,247 XP</span>
+                </div>
+                <div class="war-progress">
+                    <div class="war-progress-bar" style="width: 65%"></div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span>Language Masters</span>
+                    <span class="font-bold">987 XP</span>
+                </div>
+                <div class="text-center mt-3">
+                    <span class="text-golden-yellow font-bold">🎖️ Winning by 260 XP!</span>
+                </div>
+            </div>
+            
+            <!-- Raid Boss Challenge -->
+            <div class="raid-boss">
+                <div class="relative z-10">
+                    <h4 class="font-bold text-xl mb-2">🐉 Ancient Dragon of Grammar</h4>
+                    <p class="text-sm opacity-90 mb-3">The ultimate language challenge - defeat the dragon together!</p>
+                    <div class="boss-health">
+                        <div class="boss-health-bar" style="width: 73%"></div>
+                    </div>
+                    <div class="flex justify-between text-sm mb-3">
+                        <span>Health: 73%</span>
+                        <span>Time Left: 4h 32m</span>
+                    </div>
+                    <div class="text-center">
+                        <span class="text-golden-yellow font-bold">⚡ Attack in Progress!</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guild Chat -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-lg">
+                <h3 class="gaming-font text-2xl text-charcoal mb-4">Guild Chat</h3>
+                <div class="bg-gray-50 rounded-lg p-4 h-64 overflow-y-auto mb-4" id="chat-messages">
+                    <div class="chat-message system">
+                        🎉 Welcome to Polyglot Warriors chat!
+                    </div>
+                    <div class="chat-message">
+                        <strong>Guild Leader Maria:</strong> Great job in the war everyone! Keep pushing! 💪
+                    </div>
+                    <div class="chat-message own">
+                        <strong>You:</strong> Just completed 5 lessons! Adding to our war score ⚔️
+                    </div>
+                    <div class="chat-message">
+                        <strong>Carlos_Spanish:</strong> Anyone want to practice conversation? 🗣️
+                    </div>
+                    <div class="chat-message">
+                        <strong>Ana_Polyglot:</strong> The raid boss is almost down! Everyone attack! 🐉
+                    </div>
+                    <div class="chat-message system">
+                        🏆 Guild member DragonSlayer completed a 30-day streak!
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <input type="text" id="chat-input" placeholder="Type your message..." 
+                           class="flex-1 p-3 border-2 border-gray-300 rounded-lg focus:border-emerald-green focus:outline-none">
+                    <button class="gaming-button" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+            
+            <!-- Guild Leaderboard -->
+            <div class="bg-white rounded-2xl p-6 shadow-lg">
+                <h3 class="gaming-font text-2xl text-charcoal mb-4">Guild Leaderboard</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-mint-green rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-golden-yellow rounded-full flex items-center justify-center font-bold text-charcoal">1</div>
+                            <span class="font-semibold">You</span>
+                        </div>
+                        <span class="text-emerald-green font-bold">2,847 XP</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center font-bold text-white">2</div>
+                            <span>Maria_Learner</span>
+                        </div>
+                        <span class="text-deep-blue font-bold">2,456 XP</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center font-bold text-white">3</div>
+                            <span>Carlos_Spanish</span>
+                        </div>
+                        <span class="text-purple font-bold">2,234 XP</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center font-bold text-white">4</div>
+                            <span>Ana_Polyglot</span>
+                        </div>
+                        <span class="text-warm-orange font-bold">2,123 XP</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center font-bold text-white">5</div>
+                            <span>Diego_Learner</span>
+                        </div>
+                        <span class="text-gray-600 font-bold">1,987 XP</span>
+                    </div>
+                </div>
+                
+                <!-- Weekly Champions -->
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <h4 class="font-semibold text-gray-800 mb-3">This Week's Champions</h4>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between text-sm">
+                            <span>🏆 Top Learner</span>
+                            <span class="text-emerald-green font-semibold">Maria_Learner</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span>🔥 Streak Master</span>
+                            <span class="text-warm-orange font-semibold">Carlos_Spanish</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span>⚡ Speed Learner</span>
+                            <span class="text-purple font-semibold">Ana_Polyglot</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Other Guilds -->
+        <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+            <h3 class="gaming-font text-2xl text-charcoal mb-6">Other Guilds</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="guild-card">
+                    <div class="guild-banner" style="background: linear-gradient(135deg, #FF8C00, #FFD700);">
+                        🏛️
+                        <div class="guild-level">Level 15</div>
+                    </div>
+                    <h4 class="gaming-font text-xl text-charcoal mb-2">Language Masters</h4>
+                    <p class="text-sm text-gray-600 mb-3">Elite learners focused on mastering multiple languages</p>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm">Members: 45/50</span>
+                        <span class="text-emerald-green font-bold">3,421 XP</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm">War Status: vs Us</span>
+                        <span class="text-red-500 font-bold">Losing</span>
+                    </div>
+                </div>
+                
+                <div class="guild-card">
+                    <div class="guild-banner" style="background: linear-gradient(135deg, #8B5CF6, #ec4899);">
+                        🌟
+                        <div class="guild-level">Level 10</div>
+                    </div>
+                    <h4 class="gaming-font text-xl text-charcoal mb-2">Polyglot Stars</h4>
+                    <p class="text-sm text-gray-600 mb-3">Rising stars in the language learning community</p>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm">Members: 38/50</span>
+                        <span class="text-emerald-green font-bold">2,156 XP</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm">Requirements: Level 15+</span>
+                        <button class="text-xs bg-emerald-green text-white px-2 py-1 rounded">Join</button>
+                    </div>
+                </div>
+                
+                <div class="guild-card">
+                    <div class="guild-banner" style="background: linear-gradient(135deg, #10b981, #14b8a6);">
+                        🎯
+                        <div class="guild-level">Level 8</div>
+                    </div>
+                    <h4 class="gaming-font text-xl text-charcoal mb-2">Goal Crushers</h4>
+                    <p class="text-sm text-gray-600 mb-3">Dedicated to crushing daily learning goals together</p>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm">Members: 42/50</span>
+                        <span class="text-emerald-green font-bold">1,892 XP</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm">Focus: Daily Goals</span>
+                        <button class="text-xs bg-emerald-green text-white px-2 py-1 rounded">Join</button>
+                    </div>
+                </div>
+                
+                <div class="guild-card">
+                    <div class="guild-banner" style="background: linear-gradient(135deg, #f59e0b, #f97316);">
+                        🔥
+                        <div class="guild-level">Level 11</div>
+                    </div>
+                    <h4 class="gaming-font text-xl text-charcoal mb-2">Streak Breakers</h4>
+                    <p class="text-sm text-gray-600 mb-3">Breaking records and building unstoppable streaks</p>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm">Members: 35/50</span>
+                        <span class="text-emerald-green font-bold">2,567 XP</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm">Min Streak: 30 days</span>
+                        <span class="text-warm-orange font-bold">Full</span>
+                    </div>
+                </div>
+                
+                <div class="guild-card">
+                    <div class="guild-banner" style="background: linear-gradient(135deg, #8b5cf6, #a855f7);">
+                        📚
+                        <div class="guild-level">Level 9</div>
+                    </div>
+                    <h4 class="gaming-font text-xl text-charcoal mb-2">Grammar Guardians</h4>
+                    <p class="text-sm text-gray-600 mb-3">Protecting the realm of proper grammar and syntax</p>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm">Members: 29/50</span>
+                        <span class="text-emerald-green font-bold">1,743 XP</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm">Focus: Grammar</span>
+                        <button class="text-xs bg-emerald-green text-white px-2 py-1 rounded">Join</button>
+                    </div>
+                </div>
+                
+                <div class="guild-card">
+                    <div class="guild-banner" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
+                        🗣️
+                        <div class="guild-level">Level 7</div>
+                    </div>
+                    <h4 class="gaming-font text-xl text-charcoal mb-2">Conversation Crew</h4>
+                    <p class="text-sm text-gray-600 mb-3">Practice speaking and listening skills together</p>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm">Members: 31/50</span>
+                        <span class="text-emerald-green font-bold">1,456 XP</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm">Focus: Speaking</span>
+                        <button class="text-xs bg-emerald-green text-white px-2 py-1 rounded">Join</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Guild Modal -->
+    <div id="create-guild-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 class="gaming-font text-2xl text-charcoal mb-6">Create Your Guild</h3>
+            
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Guild Name:</label>
+                    <input type="text" id="guild-name" placeholder="Enter guild name..." 
+                           class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-emerald-green focus:outline-none">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Guild Description:</label>
+                    <textarea id="guild-description" placeholder="Describe your guild..." rows="3"
+                              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-emerald-green focus:outline-none"></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Guild Banner:</label>
+                    <div class="grid grid-cols-6 gap-2">
+                        <button class="p-4 bg-gray-100 rounded-lg border-2 border-golden-yellow text-2xl" data-banner="🏰">🏰</button>
+                        <button class="p-4 bg-gray-100 rounded-lg border-2 border-transparent text-2xl" data-banner="⚔️">⚔️</button>
+                        <button class="p-4 bg-gray-100 rounded-lg border-2 border-transparent text-2xl" data-banner="🛡️">🛡️</button>
+                        <button class="p-4 bg-gray-100 rounded-lg border-2 border-transparent text-2xl" data-banner="🏆">🏆</button>
+                        <button class="p-4 bg-gray-100 rounded-lg border-2 border-transparent text-2xl" data-banner="🌟">🌟</button>
+                        <button class="p-4 bg-gray-100 rounded-lg border-2 border-transparent text-2xl" data-banner="🎯">🎯</button>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Requirements:</label>
+                    <select class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-emerald-green focus:outline-none">
+                        <option>None - Open to all</option>
+                        <option>Level 10+ required</option>
+                        <option>Level 20+ required</option>
+                        <option>30-day streak minimum</option>
+                        <option>Active weekly</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex space-x-4">
+                <button onclick="closeCreateGuildModal()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition-colors">
+                    Cancel
+                </button>
+                <button onclick="createGuild()" class="flex-1 bg-emerald-green text-white py-3 rounded-lg font-semibold hover:bg-lime-green transition-colors">
+                    Create Guild (100 💎)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Join Guild Modal -->
+    <div id="join-guild-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 class="gaming-font text-2xl text-charcoal mb-6">Join a Guild</h3>
+            
+            <div class="mb-6">
+                <div class="flex space-x-4 mb-4">
+                    <input type="text" placeholder="Search guilds..." 
+                           class="flex-1 p-3 border-2 border-gray-300 rounded-lg focus:border-emerald-green focus:outline-none">
+                    <button class="gaming-button">Search</button>
+                </div>
+                
+                <div class="space-y-3 max-h-64 overflow-y-auto">
+                    <div class="p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-emerald-green transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-2xl">🏛️</span>
+                                <div>
+                                    <h4 class="font-semibold">Language Masters</h4>
+                                    <p class="text-sm text-gray-600">45/50 members • Level 15</p>
+                                </div>
+                            </div>
+                            <button class="text-xs bg-emerald-green text-white px-3 py-1 rounded">Join</button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-emerald-green transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-2xl">🌟</span>
+                                <div>
+                                    <h4 class="font-semibold">Polyglot Stars</h4>
+                                    <p class="text-sm text-gray-600">38/50 members • Level 10</p>
+                                </div>
+                            </div>
+                            <button class="text-xs bg-emerald-green text-white px-3 py-1 rounded">Join</button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-emerald-green transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <span class="text-2xl">🎯</span>
+                                <div>
+                                    <h4 class="font-semibold">Goal Crushers</h4>
+                                    <p class="text-sm text-gray-600">42/50 members • Level 8</p>
+                                </div>
+                            </div>
+                            <button class="text-xs bg-emerald-green text-white px-3 py-1 rounded">Join</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex space-x-4">
+                <button onclick="closeJoinGuildModal()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition-colors">
+                    Cancel
+                </button>
+                <button onclick="joinGuild()" class="flex-1 bg-emerald-green text-white py-3 rounded-lg font-semibold hover:bg-lime-green transition-colors">
+                    Join Guild
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class GuildManager {
+            constructor() {
+                this.chatMessages = [
+                    { type: 'system', text: '🎉 Welcome to Polyglot Warriors chat!' },
+                    { type: 'normal', author: 'Guild Leader Maria', text: 'Great job in the war everyone! Keep pushing! 💪' },
+                    { type: 'own', author: 'You', text: 'Just completed 5 lessons! Adding to our war score ⚔️' },
+                    { type: 'normal', author: 'Carlos_Spanish', text: 'Anyone want to practice conversation? 🗣️' },
+                    { type: 'normal', author: 'Ana_Polyglot', text: 'The raid boss is almost down! Everyone attack! 🐉' },
+                    { type: 'system', text: '🏆 Guild member DragonSlayer completed a 30-day streak!' }
+                ];
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.animateElements();
+                this.startPeriodicUpdates();
+            }
+            
+            setupEventListeners() {
+                // Chat input
+                document.getElementById('chat-input').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.sendMessage();
+                    }
+                });
+                
+                // Guild banner selection
+                document.querySelectorAll('[data-banner]').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        this.selectBanner(e.target);
+                    });
+                });
+            }
+            
+            sendMessage() {
+                const input = document.getElementById('chat-input');
+                const message = input.value.trim();
+                
+                if (message) {
+                    this.addChatMessage('own', 'You', message);
+                    input.value = '';
+                    
+                    // Simulate response
+                    setTimeout(() => {
+                        const responses = [
+                            'Great job! Keep it up! 🎉',
+                            'Anyone else want to practice? 🗣️',
+                            'Let\'s win this war! ⚔️',
+                            'The boss is almost down! 💪',
+                            'Welcome to the guild! 🌟'
+                        ];
+                        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                        this.addChatMessage('normal', 'Guild Member', randomResponse);
+                    }, 1000 + Math.random() * 2000);
+                }
+            }
+            
+            addChatMessage(type, author, text) {
+                const chatContainer = document.getElementById('chat-messages');
+                const messageDiv = document.createElement('div');
+                
+                if (type === 'system') {
+                    messageDiv.className = 'chat-message system';
+                    messageDiv.textContent = text;
+                } else {
+                    messageDiv.className = `chat-message ${type}`;
+                    messageDiv.innerHTML = `<strong>${author}:</strong> ${text}`;
+                }
+                
+                chatContainer.appendChild(messageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                // Animate new message
+                anime({
+                    targets: messageDiv,
+                    opacity: [0, 1],
+                    translateY: [20, 0],
+                    duration: 300,
+                    easing: 'easeOutQuad'
+                });
+            }
+            
+            selectBanner(button) {
+                // Remove selected from all banner buttons
+                document.querySelectorAll('[data-banner]').forEach(btn => {
+                    btn.style.borderColor = 'transparent';
+                });
+                
+                // Add selected to clicked button
+                button.style.borderColor = 'var(--golden-yellow)';
+            }
+            
+            animateElements() {
+                // Animate guild cards
+                anime({
+                    targets: '.guild-card',
+                    translateY: [50, 0],
+                    opacity: [0, 1],
+                    delay: anime.stagger(200),
+                    duration: 800,
+                    easing: 'easeOutExpo'
+                });
+                
+                // Animate member avatars
+                anime({
+                    targets: '.member-avatar',
+                    scale: [0, 1],
+                    delay: anime.stagger(100),
+                    duration: 600,
+                    easing: 'easeOutBack'
+                });
+                
+                // Animate war progress
+                setTimeout(() => {
+                    anime({
+                        targets: '.war-progress-bar',
+                        width: '65%',
+                        duration: 2000,
+                        easing: 'easeOutExpo'
+                    });
+                    
+                    anime({
+                        targets: '.boss-health-bar',
+                        width: '73%',
+                        duration: 2500,
+                        easing: 'easeOutExpo'
+                    });
+                }, 1000);
+            }
+            
+            startPeriodicUpdates() {
+                // Simulate periodic chat messages
+                setInterval(() => {
+                    if (Math.random() < 0.3) {
+                        const messages = [
+                            { type: 'normal', author: 'Guild Member', text: 'Just completed my daily goal! 💪' },
+                            { type: 'normal', author: 'Guild Member', text: 'Anyone up for conversation practice? 🗣️' },
+                            { type: 'system', text: '🎯 Guild goal completed! +50 XP for everyone!' },
+                            { type: 'normal', author: 'Guild Member', text: 'Great teamwork in the war! ⚔️' }
+                        ];
+                        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+                        this.addChatMessage(randomMessage.type, randomMessage.author, randomMessage.text);
+                    }
+                }, 10000);
+                
+                // Update war progress
+                setInterval(() => {
+                    const currentWidth = parseInt(document.querySelector('.war-progress-bar').style.width) || 65;
+                    const newWidth = Math.min(currentWidth + Math.floor(Math.random() * 3), 100);
+                    
+                    anime({
+                        targets: '.war-progress-bar',
+                        width: `${newWidth}%`,
+                        duration: 1000,
+                        easing: 'easeOutQuad'
+                    });
+                }, 30000);
+            }
+            
+            showToast(message) {
+                const toast = document.createElement('div');
+                toast.textContent = message;
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    right: 20px;
+                    background: var(--emerald-green);
+                    color: white;
+                    padding: 12px 20px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    z-index: 1000;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                `;
+                
+                document.body.appendChild(toast);
+                
+                anime({
+                    targets: toast,
+                    translateX: [100, 0],
+                    opacity: [0, 1],
+                    duration: 300,
+                    easing: 'easeOutQuad'
+                });
+                
+                setTimeout(() => {
+                    anime({
+                        targets: toast,
+                        translateX: [0, 100],
+                        opacity: [1, 0],
+                        duration: 300,
+                        easing: 'easeInQuad',
+                        complete: () => {
+                            document.body.removeChild(toast);
+                        }
+                    });
+                }, 3000);
+            }
+        }
+        
+        // Modal functions
+        function openCreateGuildModal() {
+            document.getElementById('create-guild-modal').classList.remove('hidden');
+            anime({
+                targets: '#create-guild-modal',
+                opacity: [0, 1],
+                duration: 300,
+                easing: 'easeOutQuad'
+            });
+        }
+        
+        function closeCreateGuildModal() {
+            anime({
+                targets: '#create-guild-modal',
+                opacity: [1, 0],
+                duration: 300,
+                easing: 'easeOutQuad',
+                complete: () => {
+                    document.getElementById('create-guild-modal').classList.add('hidden');
+                }
+            });
+        }
+        
+        function createGuild() {
+            const name = document.getElementById('guild-name').value;
+            const description = document.getElementById('guild-description').value;
+            const banner = document.querySelector('[data-banner].border-golden-yellow');
+            const bannerEmoji = banner ? banner.dataset.banner : '🏰';
+            
+            if (name.trim()) {
+                // Add created guild to the other guilds section
+                const guildsContainer = document.querySelector('.bg-white.rounded-2xl.shadow-lg.mb-8 .grid');
+                const newGuildCard = document.createElement('div');
+                newGuildCard.className = 'guild-card';
+                newGuildCard.innerHTML = `
+                    <div class="guild-banner" style="background: linear-gradient(135deg, #50C878, #32CD32);">
+                        ${bannerEmoji}
+                        <div class="guild-level">Level 1</div>
+                    </div>
+                    <h4 class="gaming-font text-xl text-charcoal mb-2">${name}</h4>
+                    <p class="text-sm text-gray-600 mb-3">${description || 'A new guild ready to conquer language challenges!'}</p>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm">Members: 1/50</span>
+                        <span class="text-emerald-green font-bold">0 XP</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm">Just Created</span>
+                        <span class="text-emerald-green font-bold">Your Guild!</span>
+                    </div>
+                `;
+                
+                guildsContainer.appendChild(newGuildCard);
+                
+                // Animate new guild card
+                anime({
+                    targets: newGuildCard,
+                    scale: [0, 1],
+                    opacity: [0, 1],
+                    duration: 800,
+                    easing: 'easeOutBack'
+                });
+                
+                window.guildManager.showToast(`Guild "${name}" created successfully!`);
+                closeCreateGuildModal();
+            } else {
+                window.guildManager.showToast('Please enter a guild name');
+            }
+        }
+        
+        function openJoinGuildModal() {
+            document.getElementById('join-guild-modal').classList.remove('hidden');
+            anime({
+                targets: '#join-guild-modal',
+                opacity: [0, 1],
+                duration: 300,
+                easing: 'easeOutQuad'
+            });
+        }
+        
+        function closeJoinGuildModal() {
+            anime({
+                targets: '#join-guild-modal',
+                opacity: [1, 0],
+                duration: 300,
+                easing: 'easeOutQuad',
+                complete: () => {
+                    document.getElementById('join-guild-modal').classList.add('hidden');
+                }
+            });
+        }
+        
+        function joinGuild() {
+            window.guildManager.showToast('Guild join request sent!');
+            closeJoinGuildModal();
+        }
+        
+
+        
+        function startRaidBoss() {
+            window.guildManager.showToast('Raid Boss battle initiated! 🐉');
+        }
+        
+        function sendMessage() {
+            window.guildManager.sendMessage();
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.guildManager = new GuildManager();
+        });
+    </script>
+</body>
+</html>

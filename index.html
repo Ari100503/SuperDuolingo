@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SuperDuolingo - Learn Languages Through Gaming</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.4/pixi.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.2/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Fredoka+One:wght@400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --forest-green: #2D5016;
+            --emerald-green: #50C878;
+            --mint-green: #98FB98;
+            --lime-green: #32CD32;
+            --golden-yellow: #FFD700;
+            --deep-blue: #1E3A8A;
+            --warm-orange: #FF8C00;
+            --purple: #8B5CF6;
+            --charcoal: #2D3748;
+            --light-gray: #F7FAFC;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--mint-green) 0%, var(--light-gray) 100%);
+            min-height: 100vh;
+        }
+        
+        .gaming-font {
+            font-family: 'Fredoka One', cursive;
+        }
+        
+        .primary-font {
+            font-family: 'Nunito', sans-serif;
+        }
+        
+        .hero-bg {
+            background-image: url('resources/hero-background-fixed.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .gaming-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .gaming-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+        }
+        
+        .gaming-button {
+            background: linear-gradient(135deg, var(--emerald-green), var(--lime-green));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .gaming-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(80, 200, 120, 0.4);
+        }
+        
+        .gaming-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .gaming-button:hover::before {
+            left: 100%;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, var(--emerald-green), var(--lime-green));
+            height: 8px;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+        
+        .xp-bar {
+            background: linear-gradient(90deg, var(--golden-yellow), var(--warm-orange));
+            height: 12px;
+            border-radius: 6px;
+            transition: width 1s ease;
+        }
+        
+        .streak-flame {
+            color: var(--warm-orange);
+            text-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
+        }
+        
+        .floating-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pulse-glow {
+            from { box-shadow: 0 0 20px rgba(80, 200, 120, 0.3); }
+            to { box-shadow: 0 0 30px rgba(80, 200, 120, 0.6); }
+        }
+        
+        .particle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .nav-link {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            color: var(--emerald-green);
+            transform: translateY(-2px);
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--emerald-green);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .lesson-card {
+            background: linear-gradient(135deg, white, var(--mint-green));
+            border: 2px solid var(--emerald-green);
+            transition: all 0.4s ease;
+        }
+        
+        .lesson-card:hover {
+            transform: scale(1.05) rotate(1deg);
+            box-shadow: 0 12px 36px rgba(80, 200, 120, 0.3);
+        }
+        
+        .achievement-badge {
+            background: radial-gradient(circle, var(--golden-yellow), var(--warm-orange));
+            border: 3px solid var(--golden-yellow);
+            animation: pulse-glow 2s infinite;
+        }
+        
+        .quest-card {
+            background: linear-gradient(135deg, var(--deep-blue), var(--purple));
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .quest-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .character-preview-large {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--mint-green), var(--light-gray));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6rem;
+            border: 4px solid var(--emerald-green);
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .character-type-btn {
+            background: #f3f4f6;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+        }
+        
+        .character-type-btn:hover {
+            border-color: var(--emerald-green);
+            background: var(--mint-green);
+        }
+        
+        .character-type-btn.active {
+            border-color: var(--golden-yellow);
+            background: var(--mint-green);
+            font-weight: bold;
+        }
+        
+        .color-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .color-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-btn.active {
+            border-color: var(--golden-yellow);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle Background -->
+    <div id="particle-container" class="particle-container"></div>
+    
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <img src="resources/mascot.png" alt="SuperDuolingo Mascot" class="h-12 w-12 floating-animation">
+                    <h1 class="gaming-font text-2xl text-forest-green">SuperDuolingo</h1>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html" class="nav-link primary-font font-semibold text-emerald-green">Home</a>
+                    <a href="lessons.html" class="nav-link primary-font font-semibold text-charcoal">Lessons</a>
+                    <a href="progress.html" class="nav-link primary-font font-semibold text-charcoal">Progress</a>
+                    <a href="profile.html" class="nav-link primary-font font-semibold text-charcoal">Profile</a>
+                    <a href="guilds.html" class="nav-link primary-font font-semibold text-charcoal">Guilds</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="streak-flame text-xl">🔥</span>
+                        <span class="primary-font font-bold text-warm-orange" id="streak-counter">47</span>
+                    </div>
+                    <div class="gaming-button">Start Learning</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 bg-black/20"></div>
+        <div class="relative z-10 text-center text-white max-w-4xl mx-auto px-4">
+            <h1 class="gaming-font text-6xl md:text-8xl mb-6 floating-animation">
+                Learn Languages
+                <span class="block text-lime-green">Through Gaming</span>
+            </h1>
+            <p class="primary-font text-xl md:text-2xl mb-8 opacity-90">
+                Transform your language learning journey with RPG-style progression, 
+                epic quests, and addictive gamification that actually works.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <button class="gaming-button text-lg px-8 py-4 pulse-glow" onclick="window.location.href='create-character.html'">
+                    Start Your Adventure
+                </button>
+                <button class="glass-effect text-white px-8 py-4 rounded-xl primary-font font-semibold hover:bg-white/20 transition-all" onclick="showDemoModal()">
+                    Watch Demo
+                </button>
+            </div>
+        </div>
+        
+        <!-- Floating Language Symbols -->
+        <div class="absolute top-20 left-10 text-4xl floating-animation" style="animation-delay: 0.5s;">🌍</div>
+        <div class="absolute top-32 right-20 text-3xl floating-animation" style="animation-delay: 1s;">🗣️</div>
+        <div class="absolute bottom-32 left-20 text-3xl floating-animation" style="animation-delay: 1.5s;">📚</div>
+        <div class="absolute bottom-20 right-10 text-4xl floating-animation" style="animation-delay: 2s;">✨</div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section class="py-20 px-4">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="gaming-font text-4xl text-center text-charcoal mb-12">Your Learning Dashboard</h2>
+            
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                <div class="gaming-card p-6 text-center">
+                    <div class="text-3xl mb-2">🏆</div>
+                    <h3 class="primary-font font-bold text-2xl text-emerald-green">Level 23</h3>
+                    <p class="text-gray-600">Spanish Learner</p>
+                </div>
+                <div class="gaming-card p-6 text-center">
+                    <div class="text-3xl mb-2">💎</div>
+                    <h3 class="primary-font font-bold text-2xl text-deep-blue">2,847 XP</h3>
+                    <p class="text-gray-600">Total Experience</p>
+                </div>
+                <div class="gaming-card p-6 text-center">
+                    <div class="text-3xl mb-2">🔥</div>
+                    <h3 class="primary-font font-bold text-2xl text-warm-orange">47 Days</h3>
+                    <p class="text-gray-600">Learning Streak</p>
+                </div>
+                <div class="gaming-card p-6 text-center">
+                    <div class="text-3xl mb-2">🎯</div>
+                    <h3 class="primary-font font-bold text-2xl text-purple">78%</h3>
+                    <p class="text-gray-600">Fluency Score</p>
+                </div>
+            </div>
+
+            <!-- Daily Progress -->
+            <div class="gaming-card p-8 mb-12">
+                <h3 class="gaming-font text-2xl text-charcoal mb-6">Today's Progress</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="primary-font font-semibold">Daily Goal</span>
+                        <span class="primary-font font-bold text-emerald-green">3/5 Lessons</span>
+                    </div>
+                    <div class="bg-gray-200 rounded-full h-3">
+                        <div class="progress-bar rounded-full h-3" style="width: 60%"></div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="primary-font font-semibold">XP Earned Today</span>
+                        <span class="primary-font font-bold text-golden-yellow">127 XP</span>
+                    </div>
+                    <div class="bg-gray-200 rounded-full h-4">
+                        <div class="xp-bar rounded-full h-4" style="width: 75%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Paths -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <div class="lesson-card gaming-card p-6 cursor-pointer">
+                    <div class="text-4xl mb-4 text-center">🗣️</div>
+                    <h3 class="gaming-font text-xl text-center text-charcoal mb-2">Speaking Practice</h3>
+                    <p class="text-gray-600 text-center mb-4">Practice conversation with AI partners</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">Level 3</span>
+                        <span class="text-emerald-green font-bold">+25 XP</span>
+                    </div>
+                </div>
+                
+                <div class="lesson-card gaming-card p-6 cursor-pointer">
+                    <div class="text-4xl mb-4 text-center">👂</div>
+                    <h3 class="gaming-font text-xl text-center text-charcoal mb-2">Listening Skills</h3>
+                    <p class="text-gray-600 text-center mb-4">Improve comprehension with native audio</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">Level 2</span>
+                        <span class="text-emerald-green font-bold">+20 XP</span>
+                    </div>
+                </div>
+                
+                <div class="lesson-card gaming-card p-6 cursor-pointer">
+                    <div class="text-4xl mb-4 text-center">📚</div>
+                    <h3 class="gaming-font text-xl text-center text-charcoal mb-2">Grammar Quest</h3>
+                    <p class="text-gray-600 text-center mb-4">Master grammar through gaming challenges</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">Level 4</span>
+                        <span class="text-emerald-green font-bold">+30 XP</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Quests -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                <div class="quest-card gaming-card p-6">
+                    <h3 class="gaming-font text-xl mb-4">🎯 Weekly Quest: Cultural Explorer</h3>
+                    <p class="mb-4">Learn 50 new cultural phrases and expressions</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-sm">Progress: 32/50</span>
+                        <span class="font-bold text-golden-yellow">Reward: 100 XP + Badge</span>
+                    </div>
+                    <div class="bg-white/20 rounded-full h-2">
+                        <div class="bg-golden-yellow h-2 rounded-full" style="width: 64%"></div>
+                    </div>
+                </div>
+                
+                <div class="quest-card gaming-card p-6">
+                    <h3 class="gaming-font text-xl mb-4">⚔️ Guild Challenge: Language Warriors</h3>
+                    <p class="mb-4">Help your guild complete 1000 conversation minutes</p>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-sm">Progress: 847/1000</span>
+                        <span class="font-bold text-golden-yellow">Reward: Guild Trophy</span>
+                    </div>
+                    <div class="bg-white/20 rounded-full h-2">
+                        <div class="bg-golden-yellow h-2 rounded-full" style="width: 85%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Achievements -->
+            <div class="gaming-card p-8 mb-12">
+                <h3 class="gaming-font text-2xl text-charcoal mb-6">Recent Achievements</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="achievement-badge gaming-card p-4 text-center text-white">
+                        <div class="text-2xl mb-2">🏅</div>
+                        <h4 class="font-bold text-sm">Conversation Master</h4>
+                        <p class="text-xs opacity-80">Complete 100 speaking exercises</p>
+                    </div>
+                    <div class="achievement-badge gaming-card p-4 text-center text-white">
+                        <div class="text-2xl mb-2">⚡</div>
+                        <h4 class="font-bold text-sm">Speed Learner</h4>
+                        <p class="text-xs opacity-80">Complete 5 lessons in one day</p>
+                    </div>
+                    <div class="achievement-badge gaming-card p-4 text-center text-white">
+                        <div class="text-2xl mb-2">🌟</div>
+                        <h4 class="font-bold text-sm">Streak Champion</h4>
+                        <p class="text-xs opacity-80">Maintain 30-day streak</p>
+                    </div>
+                    <div class="achievement-badge gaming-card p-4 text-center text-white">
+                        <div class="text-2xl mb-2">🎭</div>
+                        <h4 class="font-bold text-sm">Culture Explorer</h4>
+                        <p class="text-xs opacity-80">Learn 100 cultural phrases</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skill Tree -->
+            <div class="bg-white rounded-2xl p-8 mb-8 shadow-lg">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="gaming-font text-2xl text-charcoal">Spanish Skill Tree</h3>
+                    <div class="text-right">
+                        <div class="text-sm text-gray-600">Your Progress</div>
+                        <div class="text-2xl font-bold text-emerald-green">23/100 Skills</div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-600">Overall Progress</span>
+                        <span class="text-sm font-semibold text-emerald-green">23%</span>
+                    </div>
+                    <div class="bg-gray-200 rounded-full h-4">
+                        <div class="bg-gradient-to-r from-emerald-green to-lime-green h-4 rounded-full transition-all duration-1000" style="width: 23%"></div>
+                    </div>
+                </div>
+                
+                <div class="skill-tree p-8 rounded-xl">
+                    <div class="relative">
+                        <!-- Speaking Branch -->
+     

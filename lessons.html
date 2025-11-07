@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lessons - SuperDuolingo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter.js/0.18.0/matter.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Fredoka+One:wght@400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --forest-green: #2D5016;
+            --emerald-green: #50C878;
+            --mint-green: #98FB98;
+            --lime-green: #32CD32;
+            --golden-yellow: #FFD700;
+            --deep-blue: #1E3A8A;
+            --warm-orange: #FF8C00;
+            --purple: #8B5CF6;
+            --charcoal: #2D3748;
+            --light-gray: #F7FAFC;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--mint-green) 0%, var(--light-gray) 100%);
+            min-height: 100vh;
+        }
+        
+        .gaming-font {
+            font-family: 'Fredoka One', cursive;
+        }
+        
+        .primary-font {
+            font-family: 'Nunito', sans-serif;
+        }
+        
+        .lesson-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            min-height: 600px;
+        }
+        
+        .answer-option {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .answer-option:hover {
+            border-color: var(--emerald-green);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(80, 200, 120, 0.2);
+        }
+        
+        .answer-option.correct {
+            background: linear-gradient(135deg, var(--emerald-green), var(--lime-green));
+            color: white;
+            border-color: var(--emerald-green);
+        }
+        
+        .answer-option.incorrect {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border-color: #dc3545;
+        }
+        
+        .answer-option.selected {
+            border-color: var(--deep-blue);
+            background: linear-gradient(135deg, var(--deep-blue), var(--purple));
+            color: white;
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-circle {
+            stroke: var(--emerald-green);
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+        
+        .flip-card {
+            background-color: transparent;
+            perspective: 1000px;
+            height: 200px;
+        }
+        
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .flip-card-front {
+            background: linear-gradient(135deg, var(--emerald-green), var(--lime-green));
+            color: white;
+        }
+        
+        .flip-card-back {
+            background: linear-gradient(135deg, var(--deep-blue), var(--purple));
+            color: white;
+            transform: rotateY(180deg);
+        }
+        
+        .drag-word {
+            background: var(--emerald-green);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: grab;
+            user-select: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin: 4px;
+        }
+        
+        .drag-word:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(80, 200, 120, 0.4);
+        }
+        
+        .drag-word.dragging {
+            opacity: 0.5;
+            transform: scale(1.1);
+        }
+        
+        .drop-zone {
+            min-height: 60px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 8px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: var(--emerald-green);
+            background-color: var(--mint-green);
+        }
+        
+        .drop-zone.filled {
+            border-color: var(--emerald-green);
+            background: linear-gradient(135deg, var(--mint-green), var(--lime-green));
+        }
+        
+        .celebration-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .celebration-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+        }
+        
+        .xp-gain {
+            font-size: 3rem;
+            color: var(--golden-yellow);
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .streak-flame {
+            color: var(--warm-orange);
+            text-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
+        }
+        
+        .floating-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pulse-glow {
+            from { box-shadow: 0 0 20px rgba(80, 200, 120, 0.3); }
+            to { box-shadow: 0 0 30px rgba(80, 200, 120, 0.6); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-md shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <img src="resources/mascot.png" alt="SuperDuolingo Mascot" class="h-12 w-12 floating-animation">
+                    <h1 class="gaming-font text-2xl text-forest-green">SuperDuolingo</h1>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="index.html" class="nav-link primary-font font-semibold text-charcoal">Home</a>
+                    <a href="lessons.html" class="nav-link primary-font font-semibold text-emerald-green">Lessons</a>
+                    <a href="progress.html" class="nav-link primary-font font-semibold text-charcoal">Progress</a>
+                    <a href="profile.html" class="nav-link primary-font font-semibold text-charcoal">Profile</a>
+                    <a href="guilds.html" class="nav-link primary-font font-semibold text-charcoal">Guilds</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="streak-flame text-xl">🔥</span>
+                        <span class="primary-font font-bold text-warm-orange" id="streak-counter">47</span>
+                    </div>
+                    <button class="bg-emerald-green text-white px-4 py-2 rounded-lg font-semibold hover:bg-lime-green transition-colors" onclick="window.location.href='index.html'">
+                        Back to Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Lesson Container -->
+    <div class="max-w-4xl mx-auto p-4 py-8">
+        <!-- Progress Header -->
+        <div class="bg-white rounded-2xl p-6 mb-8 shadow-lg">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="gaming-font text-2xl text-charcoal">Spanish Lesson: Basic Greetings</h2>
+                <div class="flex items-center space-x-4">
+                    <div class="text-center">
+                        <div class="text-2xl mb-1">🔥</div>
+                        <div class="text-sm text-warm-orange font-bold">47</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl mb-1">💎</div>
+                        <div class="text-sm text-deep-blue font-bold" id="lesson-xp">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="flex items-center space-x-4">
+                <span class="text-sm text-gray-600">Progress:</span>
+                <div class="flex-1 bg-gray-200 rounded-full h-3">
+                    <div class="bg-gradient-to-r from-emerald-green to-lime-green h-3 rounded-full transition-all duration-500" 
+                         id="lesson-progress" style="width: 0%"></div>
+                </div>
+                <span class="text-sm text-gray-600" id="progress-text">0/10</span>
+            </div>
+        </div>
+
+        <!-- Lesson Content -->
+        <div class="lesson-container p-8" id="lesson-content">
+            <!-- Exercise will be loaded here -->
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-between items-center mt-8">
+            <button id="skip-btn" class="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400 transition-colors">
+                Skip Exercise
+            </button>
+            <button id="check-btn" class="px-8 py-3 bg-emerald-green text-white rounded-lg font-semibold hover:bg-lime-green transition-colors opacity-50 cursor-not-allowed" disabled>
+                Check Answer
+            </button>
+            <button id="next-btn" class="px-8 py-3 bg-deep-blue text-white rounded-lg font-semibold hover:bg-purple transition-colors hidden">
+                Next Exercise
+            </button>
+        </div>
+    </div>
+
+    <!-- Celebration Modal -->
+    <div id="celebration-modal" class="celebration-overlay hidden">
+        <div class="celebration-content">
+            <div class="flex justify-between items-start mb-4">
+                <div class="text-6xl">🎉</div>
+                <button onclick="window.lessonManager.hideCelebration()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">×</button>
+            </div>
+            <h2 class="gaming-font text-3xl text-emerald-green mb-4">Excellent!</h2>
+            <div class="xp-gain mb-4" id="xp-gained">+10 XP</div>
+            <p class="text-gray-600 mb-6" id="feedback-text">Great job! You got it right!</p>
+            <button id="continue-btn" class="px-8 py-3 bg-emerald-green text-white rounded-lg font-semibold hover:bg-lime-green transition-colors">
+                Continue Learning
+            </button>
+        </div>
+    </div>
+
+    <script>
+        class LessonManager {
+            constructor() {
+                this.currentExercise = 0;
+                this.totalExercises = 10;
+                this.xpGained = 0;
+                this.streak = 47;
+                this.exercises = [
+                    this.createMultipleChoiceExercise(),
+                    this.createFlipCardExercise(),
+                    this.createSentenceBuilderExercise(),
+                    this.createListeningExercise(),
+                    this.createTranslationExercise(),
+                    this.createMultipleChoiceExercise(),
+                    this.createFlipCardExercise(),
+                    this.createSentenceBuilderExercise(),
+                    this.createListeningExercise(),
+                    this.createTranslationExercise()
+                ];
+                this.init();
+            }
+            
+            init() {
+                this.loadExercise();
+                this.setupEventListeners();
+                this.updateProgress();
+            }
+            
+            createMultipleChoiceExercise() {
+                const questions = [
+                    {
+                        question: "How do you say 'Hello' in Spanish?",
+                        options: ["Hola", "Adiós", "Por favor", "Gracias"],
+                        correct: 0,
+                        xp: 10
+                    },
+                    {
+                        question: "What does '¿Cómo estás?' mean?",
+                        options: ["What's your name?", "How are you?", "Where are you from?", "How old are you?"],
+                        correct: 1,
+                        xp: 10
+                    },
+                    {
+                        question: "How do you say 'Thank you' in Spanish?",
+                        options: ["De nada", "Por favor", "Gracias", "Lo siento"],
+                        correct: 2,
+                        xp: 10
+                    }
+                ];
+                return questions[Math.floor(Math.random() * questions.length)];
+            }
+            
+            createFlipCardExercise() {
+                const cards = [
+                    { front: "Hello", back: "Hola", xp: 15 },
+                    { front: "Goodbye", back: "Adiós", xp: 15 },
+                    { front: "Please", back: "Por favor", xp: 15 },
+                    { front: "Thank you", back: "Gracias", xp: 15 },
+                    { front: "You're welcome", back: "De nada", xp: 15 }
+                ];
+                return cards[Math.floor(Math.random() * cards.length)];
+            }
+            
+            createSentenceBuilderExercise() {
+                const sentences = [
+                    {
+                        words: ["Hola", "¿cómo", "estás?", "Yo", "estoy", "bien."],
+                        correct: ["Hola", "¿cómo", "estás?"],
+                        xp: 20
+                    },
+                    {
+                        words: ["Me", "llamo", "María.", "¿Y", "tú?", "Mucho", "gusto."],
+                        correct: ["Me", "llamo", "María."],
+                        xp: 20
+                    }
+                ];
+                return sentences[Math.floor(Math.random() * sentences.length)];
+            }
+            
+            createListeningExercise() {
+                return {
+                    type: 'listening',
+                    audio: 'placeholder.mp3', // Would be actual audio file
+                    question: "Listen to the audio and select what you hear:",
+                    options: ["Buenos días", "Buenas tardes", "Buenas noches", "Hola"],
+                    correct: 0,
+                    xp: 25
+                };
+            }
+            
+            createTranslationExercise() {
+                const translations = [
+                    { english: "Good morning", spanish: "Buenos días", xp: 15 },
+                    { english: "Good afternoon", spanish: "Buenas tardes", xp: 15 },
+                    { english: "Good night", spanish: "Buenas noches", xp: 15 },
+                    { english: "Nice to meet you", spanish: "Mucho gusto", xp: 15 }
+                ];
+                return translations[Math.floor(Math.random() * translations.length)];
+            }
+            
+            loadExercise() {
+                const exercise = this.exercises[this.currentExercise];
+                const container = document.getElementById('lesson-content');
+                
+                if (exercise.type === 'listening') {
+                    this.renderListeningExercise(exercise);
+                } else if (exercise.words) {
+                    this.renderSentenceBuilder(exercise);
+                } else if (exercise.front) {
+                    this.renderFlipCard(exercise);
+                } else if (exercise.english) {
+                    this.renderTranslation(exercise);
+                } else {
+                    this.renderMultipleChoice(exercise);
+                }
+                
+                this.resetButtons();
+            }
+            
+            renderMultipleChoice(exercise) {
+                const container = document.getElementById('lesson-content');
+                container.innerHTML = `
+                    <div class="text-center mb-8">
+                        <h3 class="gaming-font text-2xl text-charcoal mb-4">Multiple Choice</h3>
+                        <p class="primary-font text-xl text-gray-700">${exercise.question}</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${exercise.options.map((option, index) => `
+                            <div class="answer-option" data-index="${index}">
+                                <span class="text-lg font-semibold">${option}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                this.setupMultipleChoiceListeners();
+            }
+            
+            renderFlipCard(exercise) {
+                const container = document.getElementById('lesson-content');
+                container.innerHTML = `
+                    <div class="text-center mb-8">
+                        <h3 class="gaming-font text-2xl text-charcoal mb-4">Flashcard Challenge</h3>
+                        <p class="primary-font text-lg text-gray-700">Click the card to reveal the translation</p>
+                    </div>
+                    <div class="flip-card mx-auto max-w-md" id="flip-card">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <span>${exercise.front}</span>
+                            </div>
+                            <div class="flip-card-back">
+                                <span>${exercise.back}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-6">
+                        <p class="text-gray-600">Click the card above to see the translation</p>
+                    </div>
+                `;
+                
+                document.getElementById('flip-card').addEventListener('click', () => {
+                    document.getElementById('flip-card').classList.toggle('flipped');
+                    if (document.getElementById('flip-card').classList.contains('flipped')) {
+                        this.enableCheckButton();
+                    }
+                });
+            }
+            
+            renderSentenceBuilder(exercise) {
+                const container = document.getElementById('lesson-content');
+                container.innerHTML = `
+                    <div class="text-center mb-8">
+                        <h3 class="gaming-font text-2xl text-charcoal mb-4">Sentence Builder</h3>
+                        <p class="primary-font text-lg text-gray-700">Drag the words to form a correct sentence</p>
+                    </div>
+                    <div class="mb-6">
+                        <h4 class="font-semibold mb-3">Available Words:</h4>
+                        <div id="word-bank" class="flex flex-wrap gap-2 mb-6">
+                            ${exercise.words.map((word, index) => `
+                                <div class="drag-word" draggable="true" data-word="${word}" data-index="${index}">
+                                    ${word}
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div id="sentence-builder" class="drop-zone">
+                            <span class="text-gray-400">Drag words here to build your sentence</span>
+                        </div>
+                    </div>
+                `;
+                
+                this.setupDragAndDrop();
+            }
+            
+            renderListening(exercise) {
+                const container = document.getElementById('lesson-content');
+                container.innerHTML = `
+                    <div class="text-center mb-8">
+                        <h3 class="gaming-font text-2xl text-charcoal mb-4">Listening Practice</h3>
+                        <p class="primary-font text-lg text-gray-700">${exercise.question}</p>
+                    </div>
+                    <div class="text-center mb-6">
+                        <button id="play-audio" class="bg-emerald-green text-white px-8 py-4 rounded-lg font-semibold hover:bg-lime-green transition-colors text-xl">
+                            🔊 Play Audio
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${exercise.options.map((option, index) => `
+                            <div class="answer-option" data-index="${index}">
+                                <span class="text-lg font-semibold">${option}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                document.getElementById('play-audio').addEventListener('click', () => {
+                    // Simulate audio playback
+                    anime({
+                        targets: '#play-audio',
+                        scale: [1, 0.95, 1],
+                        duration: 200,
+                        easing: 'easeOutQuad'
+                    });
+                    
+                    // Show audio playing feedback
+                    const button = document.getElementById('play-audio');
+                    const originalText = button.textContent;
+                    button.textContent = '🔊 Playing...';
+                    button.disabled = true;
+                    
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    }, 2000);
+                });
+                
+                this.setupMultipleChoiceListeners();
+            }
+            
+            renderTranslation(exercise) {
+                const container = document.getElementById('lesson-content');
+                container.innerHTML = `
+                    <div class="text-center mb-8">
+                        <h3 class="gaming-font text-2xl text-charcoal mb-4">Translation Challenge</h3>
+                        <p class="primary-font text-lg text-gray-700">Translate the following phrase:</p>
+                    </div>
+                    <div class="text-center mb-6">
+                        <div class="bg-emerald-green text-white p-6 rounded-lg text-2xl font-bold">
+                            "${exercise.english}"
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <input type="text" id="translation-input" 
+                               class="w-full max-w-md mx-auto p-4 border-2 border-gray-300 rounded-lg text-xl text-center focus:border-emerald-green focus:outline-none" 
+                               placeholder="Type your translation here...">
+                    </div>
+                `;
+                
+                document.getElementById('translation-input').addEventListener('input', (e) => {
+                    if (e.target.value.trim().length > 0) {
+                        this.enableCheckButton();
+                    } else {
+                        this.disableCheckButton();
+                    }
+                });
+            }
+            
+            setupMultipleChoiceListeners() {
+                document.querySelectorAll('.answer-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        // Remove previous selections
+                        document.querySelectorAll('.answer-option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        
+                        // Select current option
+                        e.currentTarget.classList.add('selected');
+                        this.enableCheckButton();
+                    });
+                });
+            }
+            
+            setupDragAndDrop() {
+                const dragWords = document.querySelectorAll('.drag-word');
+                const dropZone = document.getElementById('sentence-builder');
+                let draggedWords = [];
+                
+                dragWords.forEach(word => {
+                    word.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', e.target.dataset.word);
+                        e.target.classList.add('dragging');
+                    });
+                    
+                    word.addEventListener('dragend', (e) => {
+                        e.target.classList.remove('dragging');
+                    });
+                });
+                
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('drag-over');
+                });
+                
+                dropZone.addEventListener('dragleave', () => {
+                    dropZone.classList.remove('drag-over');
+                });
+                
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const word = e.dataTransfer.getData('text/plain');
+                    draggedWords.push(word);
+                    
+                    // Remove the dragged word from the bank
+                    const wordElement = document.querySelector(`[data-word="${word}"]`);
+                    if (wordElement) {
+                        wordElement.style.display = 'none';
+                    }
+                    
+                    // Update the drop zone
+                    this.updateDropZone(draggedWords);
+                    dropZone.classList.remove('drag-over');
+                    
+                    if (draggedWords.length > 0) {
+                        this.enableCheckButton();
+                    }
+                });
+                
+                // Allow clicking to add words
+                dragWords.forEach(word => {
+                    word.addEventListener('click', () => {
+                        const wordText = word.dataset.word;
+                        if (word.style.display !== 'none') {
+                            draggedWords.push(wordText);
+                            word.style.display = 'none';
+                            this.updateDropZone(draggedWords);
+                            this.enableCheckButton();
+                        }
+                    });
+                });
+            }
+            
+            updateDropZone(words) {
+                const dropZone = document.getElementById('sentence-builder');
+                if (words.length === 0) {
+                    dropZone.innerHTML = '<span class="text-gray-400">Drag words here to build your sentence</span>';
+                    dropZone.classList.remove('filled');
+                } else {
+                    dropZone.innerHTML = words.map(word => 
+                        `<span class="bg-emerald-green text-white px-3 py-1 rounded-lg mx-1">${word}</span>`
+                    ).join('');
+                    dropZone.classList.add('filled');
+                }
+            }
+            
+            setupEventListeners() {
+                document.getElementById('check-btn').addEventListener('click', () => {
+                    this.checkAnswer();
+                });
+                
+                document.getElementById('skip-btn').addEventListener('click', () => {
+                    this.skipExercise();
+                });
+                
+                document.getElementById('next-btn').addEventListener('click', () => {
+                    this.nextExercise();
+                });
+                
+                document.getElementById('continue-btn').addEventListener('click', () => {
+                    this.hideCelebration();
+                });
+            }
+            
+            checkAnswer() {
+                const exercise = this.exercises[this.currentExercise];
+                let isCorrect = false;
+                let userAnswer = '';
+                
+                if (exercise.type === 'listening' || exercise.options) {
+                    const selected = document.querySelector('.answer-option.selected');
+                    if (selected) {
+                        const selectedIndex = parseInt(selected.dataset.index);
+                        isCorrect = selectedIndex === exercise.correct;
+                        userAnswer = exercise.options[selectedIndex];
+                    }
+                } else if (exercise.front) {
+                    isCorrect = document.getElementById('flip-card').classList.contains('flipped');
+                    userAnswer = exercise.back;
+                } else if (exercise.words) {
+                    const dropZone = document.getElementById('sentence-builder');
+                    const selectedWords = Array.from(dropZone.querySelectorAll('span')).map(span => span.textContent);
+                    isCorrect = this.arraysEqual(selectedWords, exercise.correct);
+                    userAnswer = selectedWords.join(' ');
+                } else if (exercise.english) {
+                    const input = document.getElementById('translation-input');
+                    userAnswer = input.value.trim().toLowerCase();
+                    isCorrect = userAnswer === exercise.spanish.toLowerCase();
+                }
+                
+                this.showCelebration(isCorrect, exercise.xp || 10);
+                
+                if (isCorrect) {
+                    this.xpGained += exercise.xp || 10;
+                    this.updateXP();
+                }
+            }
+            
+            arraysEqual(a, b) {
+                return a.length === b.length && a.every((val, i) => val === b[i]);
+            }
+            
+            showCelebration(isCorrect, xp) {
+                const modal = document.getElementById('celebration-modal');
+                const xpGained = document.getElementById('xp-gained');
+                const feedbackText = document.getElementById('feedback-text');
+                
+                if (isCorrect) {
+                    xpGained.textContent = `+${xp} XP`;
+                    feedbackText.textContent = "Perfect! You got it right!";
+                    modal.querySelector('h2').textContent = "Excellent!";
+                    modal.querySelector('h2').style.color = "#50C878";
+                } else {
+                    xpGained.textContent = "+0 XP";
+                    feedbackText.textContent = "Not quite right, but keep practicing!";
+                    modal.querySelector('h2').textContent = "Try Again!";
+                    modal.querySelector('h2').style.color = "#FF8C00";
+                }
+                
+                modal.classList.remove('hidden');
+                
+                anime({
+                    targets: modal,
+                    opacity: [0, 1],
+                    duration: 300,
+                    easing: 'easeOutQuad'
+                });
+                
+                anime({
+                    targets: '.celebration-content',
+                    scale: [0.8, 1],
+                    duration: 500,
+                    easing: 'easeOutBack',
+                    delay: 100
+                });
+                
+                // Create celebration particles
+                this.createCelebrationParticles(isCorrect);
+            }
+            
+            hideCelebration() {
+                const modal = document.getElementById('celebration-modal');
+                
+                anime({
+                    targets: modal,
+                    opacity: [1, 0],
+                    duration: 300,
+                    easing: 'easeOutQuad',
+                    complete: () => {
+                        modal.classList.add('hidden');
+                        // Auto-advance to next exercise after correct answer
+                        setTimeout(() => {
+                            this.nextExercise();
+                        }, 500);
+                    }
+                });
+            }
+            
+            createCelebrationParticles(isCorrect) {
+                const colors = isCorrect ? ['#50C878', '#32CD32', '#FFD700'] : ['#FF8C00', '#dc3545'];
+                
+                for (let i = 0; i < 30; i++) {
+                    const particle = document.createElement('div');
+                    particle.style.cssText = `
+                        position: fixed;
+                        width: 8px;
+                        height: 8px;
+                        background: ${colors[Math.floor(Math.random() * colors.length)]};
+                        border-radius: 50%;
+                        pointer-events: none;
+                        z-index: 1001;
+                        left: 50%;
+                        top: 50%;
+                    `;
+                    document.body.appendChild(particle);
+                    
+                    anime({
+                        targets: particle,
+                        translateX: (Math.random() - 0.5) * 400,
+                        translateY: (Math.random() - 0.5) * 400,
+                        scale: [1, 0],
+                        opacity: [1, 0],
+                        duration: 1500,
+                        easing: 'easeOutQuad',
+                        complete: () => {
+                            document.body.removeChild(particle);
+                        }
+                    });
+                }
+            }
+            
+            nextExercise() {
+                this.currentExercise++;
+                if (this.currentExercise >= this.totalExercises) {
+                    this.completeLesson();
+                } else {
+                    this.loadExercise();
+                    this.updateProgress();
+                }
+            }
+            
+            skipExercise() {
+                this.nextExercise();
+            }
+            
+            completeLesson() {
+                // Show lesson completion celebration
+                const completionModal = document.createElement('div');
+                completionModal.className = 'celebration-overlay';
+                completionModal.innerHTML = `
+                    <div class="celebration-content">
+                        <div class="text-6xl mb-4">🏆</div>
+                        <h2 class="gaming-font text-3xl text-emerald-green mb-4">Lesson Complete!</h2>
+                        <div class="xp-gain mb-4">+${this.xpGained} XP Earned</div>
+                        <p class="text-gray-600 mb-6">Great job! You've completed the lesson!</p>
+                        <button onclick="window.location.href='index.html'" 
+                                class="px-8 py-3 bg-emerald-green text-white rounded-lg font-semibold hover:bg-lime-green transition-colors">
+                            Back to Dashboard
+                        </button>
+                    </div>
+                `;
+                document.body.appendChild(completionModal);
+                
+                anime({
+                    targets: completionModal,
+                    opacity: [0, 1],
+                    duration: 300,
+                    easing: 'easeOutQuad'
+                });
+            }
+            
+            updateProgress() {
+                const progress = ((this.currentExercise + 1) / this.totalExercises) * 100;
+                document.getElementById('lesson-progress').style.width = `${progress}%`;
+                document.getElementById('progress-text').textContent = `${this.currentExercise + 1}/${this.totalExercises}`;
+            }
+            
+            updateXP() {
+                document.getElementById('lesson-xp').textContent = this.xpGained;
+            }
+            
+            enableCheckButton() {
+                const checkBtn = document.getElementById('check-btn');
+                checkBtn.disabled = false;
+                checkBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                checkBtn.classList.add('hover:bg-lime-green', 'pulse-glow');
+                checkBtn.style.background = 'linear-gradient(135deg, #FFD700, #FF8C00)';
+                checkBtn.style.animation = 'pulse-glow 1s infinite';
+                checkBtn.textContent = '✓ Check Answer';
+            }
+            
+            disableCheckButton() {
+                const checkBtn = document.getElementById('check-btn');
+                checkBtn.disabled = true;
+                checkBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                checkBtn.classList.remove('hover:bg-lime-green', 'pulse-glow');
+                checkBtn.style.background = 'linear-gradient(135deg, var(--emerald-green), var(--lime-green))';
+                checkBtn.style.animation = 'none';
+                checkBtn.textContent = 'Check Answer';
+            }
+            
+            resetButtons() {
+                this.disableCheckButton();
+                document.getElementById('check-btn').classList.remove('hidden');
+                document.getElementById('next-btn').classList.add('hidden');
+            }
+        }
+        
+        // Initialize lesson manager when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new LessonManager();
+        });
+    </script>
+</body>
+</html>
