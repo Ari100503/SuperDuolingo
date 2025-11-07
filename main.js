@@ -504,8 +504,8 @@ class SuperDuolingo {
 document.addEventListener('DOMContentLoaded', () => {
     // Check if user has created a character
     const characterData = localStorage.getItem('superduolingo-character');
-    if (!characterData && !window.location.pathname.includes('create-character.html')) {
-        window.location.href = 'create-character.html';
+    if (!characterData && !window.location.pathname.includes('create-character-enhanced.html')) {
+        window.location.href = 'create-character-enhanced.html';
         return;
     }
     
@@ -532,7 +532,7 @@ document.addEventListener('keydown', (e) => {
 
 // Character creation functions for home page
 function openQuickCharacterModal() {
-    window.location.href = 'create-character.html';
+    window.location.href = 'create-character-enhanced.html';
 }
 
 function saveHomeCharacter() {
