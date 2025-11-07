@@ -561,11 +561,6 @@
                     darkmode: false,
                     animations: true
                 };
-            }
-            
-            init() {
-                this.setupEventListeners();
-                this.animateElements();
                 const characterData = JSON.parse(localStorage.getItem('superduolingo-character') || '{}');
                 const emojiMap = {
                     'warrior': '🥷🏻',
@@ -574,6 +569,11 @@
                     'scholar': '👨🏻‍🎓'
                 };
                 const characterEmoji = emojiMap[characterData.type] || '🥷🏻';
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.animateElements();
             }
             
             setupEventListeners() {
