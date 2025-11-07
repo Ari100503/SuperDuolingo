@@ -406,7 +406,7 @@
         </div>
 
         <!-- Step 5: Name and Finalize -->
-        <div class="creation-step" id="creation-step-5">
+        <div class="creation-step" id="creation-step-4">
             <div class="text-center mb-8">
                 <h2 class="gaming-font text-3xl text-charcoal mb-4">Choose Your Name</h2>
                 <p class="primary-font text-lg text-gray-600">What should we call you on your language learning adventure?</p>
@@ -479,7 +479,7 @@
         class EnhancedCharacterCreation {
             constructor() {
                 this.currentStep = 1;
-                this.totalSteps = 5;
+                this.totalSteps = 4;
                 this.characterData = {
                     type: 'warrior',
                     color: 'green',
@@ -588,29 +588,7 @@
                 });
             }
             
-            selectColor(option) {
-                // Remove selected from siblings
-                const siblings = option.parentElement.querySelectorAll('.color-option');
-                siblings.forEach(opt => opt.classList.remove('selected'));
-                
-                // Add selected to clicked option
-                option.classList.add('selected');
-                
-                const color = option.dataset.color;
-                if (color) {
-                    this.characterData.color = color;
-                    this.updateThemePreview();
-                }
-                
-                // Add selection animation
-                anime({
-                    targets: option,
-                    scale: [1, 1.1, 1],
-                    duration: 300,
-                    easing: 'easeOutQuad'
-                });
-            }
-            
+                       
             selectLanguage(option) {
                 // Remove selected from all language options
                 document.querySelectorAll('[data-language]').forEach(opt => {
@@ -630,38 +608,7 @@
                 });
             }
             
-            updateCharacterPreview() {
-                const emojiMap = {
-                    warrior: '⚔️',
-                    wizard: '🧙‍♂️',
-                    explorer: '🗺️',
-                    scholar: '📚'
-                };
-                
-                document.getElementById('home-character-emoji').textContent = emojiMap[this.characterData.type];
-                this.updateThemePreview();
-            }
-            
-            updateThemePreview() {
-                const colorMap = {
-                    green: 'linear-gradient(135deg, #50C878, #32CD32)',
-                    blue: 'linear-gradient(135deg, #1E3A8A, #8B5CF6)',
-                    orange: 'linear-gradient(135deg, #FF8C00, #FFD700)',
-                    red: 'linear-gradient(135deg, #dc3545, #e83e8c)'
-                };
-                
-                document.getElementById('theme-preview').style.background = colorMap[this.characterData.color];
-                
-                const emojiMap = {
-                    warrior: '⚔️',
-                    wizard: '🧙‍♂️',
-                    explorer: '🗺️',
-                    scholar: '📚'
-                };
-                
-                document.getElementById('theme-emoji').textContent = emojiMap[this.characterData.type];
-            }
-            
+                        
             nextStep() {
                 if (this.currentStep < this.totalSteps) {
                     this.currentStep++;
@@ -691,11 +638,7 @@
                 // Update navigation buttons
                 this.updateNavigationButtons();
                 
-                // Update theme preview if on step 4
-                if (this.currentStep === 4) {
-                    this.updateThemePreview();
-                }
-                
+                               
                 // Animate step transition
                 anime({
                     targets: `#creation-step-${this.currentStep}`,
